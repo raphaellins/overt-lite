@@ -21,6 +21,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { authMiddleWare } from '../util/auth'
 import { Theme, createStyles } from '@material-ui/core';
+import Game from '../components/Game';
 
 const drawerWidth = 240;
 
@@ -83,17 +84,19 @@ interface IProps {
 
 class home extends Component<IProps, IState> {
 	state: IState = {
-		render: false
+		render: true
 	};
 
-	loadAccountPage = (event: any) => {
-		console.log('acount');
+	loadNewGame = (event: any) => {
 		this.setState({ render: true });
 	};
 
-	loadTodoPage = (event: any) => {
-		console.log('lottery');
+	loadLottery = (event: any) => {
 		this.setState({ render: false });
+	};
+
+	loadAccountPage = (event: any) => {
+		this.props.history.push('/account');
 	};
 
 	logoutHandler = (event: any) => {
@@ -175,14 +178,14 @@ class home extends Component<IProps, IState> {
 							</p>
 						<Divider />
 						<List>
-							<ListItem button key="Todo" onClick={this.loadTodoPage}>
+							<ListItem button key="Lottery" onClick={this.loadLottery}>
 								<ListItemIcon>
 									{' '}
 									<NotesIcon />{' '}
 								</ListItemIcon>
 								<ListItemText primary="Lottery" />
 							</ListItem>
-							<ListItem button key="Todo" onClick={this.loadTodoPage}>
+							<ListItem button key="NewGame" onClick={this.loadNewGame}>
 								<ListItemIcon>
 									{' '}
 									<NotesIcon />{' '}
@@ -208,7 +211,7 @@ class home extends Component<IProps, IState> {
 						</List>
 					</Drawer>
 
-					<div><Lottery /></div>
+					<div>{this.state.render ? <Game /> : <Lottery />}</div>
 				</div>
 			);
 		}

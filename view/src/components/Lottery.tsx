@@ -35,6 +35,9 @@ const styles = ((theme: Theme) => (
           color: 'black',
           fontWeight: 'bold'
       },
+      ballMatched: {
+          backgroundColor: 'green',
+      },
       numbers: {
           marginBottom: 10
       }
@@ -57,8 +60,6 @@ class Lottery extends Component<IProps, IState> {
 
     render() {
         const { classes } = this.props;
-        const bull = <span className={classes.bullet}>•</span>;
-
         return (
             <main className={classes.content}>
                 <div className={classes.toolbar} />
