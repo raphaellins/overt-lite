@@ -5,6 +5,7 @@ import { Theme, Icon, createStyles } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import axios from 'axios';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -49,21 +50,71 @@ interface IProps {
     classes?: any;
 }
 
+interface IGame {
+    gameNumber: string,
+    numbersPlayed: string[],
+    gameId: string
+}
+
 interface IState {
 	email?: String;
 	password?: String;
     errors?: Error;
     loading?: boolean;
+    retrievedData?: IGame[]
 }
 
 class Lottery extends Component<IProps, IState> {
 
+    constructor(props: IProps) {
+		super(props);
+
+		this.state = {};
+    }
+
+    componentWillMount = async () => {
+        const authToken = localStorage.getItem('AuthToken');
+        axios.defaults.headers.common = { Authorization: `${authToken}` };
+        
+        const {data} = await axios.get('https://us-central1-overtlite.cloudfunctions.net/api/games');
+
+        const allGames: IGame[] = data.map((game: IGame) => {
+            return game;
+        });
+
+        this.setState({ retrievedData: allGames});
+    }
+
     render() {
         const { classes } = this.props;
+        const {retrievedData} = this.state;
         return (
             <main className={classes.content}>
                 <div className={classes.toolbar} />
-                <Card className={classes.root}>
+                {
+                    retrievedData?.map((game: IGame) => {
+                        return (
+                            <Card className={classes.root} key={game.gameId}>
+                                <CardContent>
+                                    <Typography className={classes.title} color="textSecondary" gutterBottom>
+                                        {game.gameNumber}
+                                    </Typography>
+
+                                    <Typography variant="h5" component="h2" className={classes.numbers}>
+
+                                    {
+                                        game.numbersPlayed.map((ballNumber: string) => {
+                                           return (<span className={classes.ball}>{ballNumber}</span>)
+                                        })
+                                    }
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        )
+                    })
+                }
+
+                {/* <Card className={classes.root}>
                     <CardContent>
                     <Typography className={classes.title} color="textSecondary" gutterBottom>
                         9928  -  20/06/2020
@@ -123,7 +174,7 @@ class Lottery extends Component<IProps, IState> {
                         <span className={classes.ball}>25</span>
                     </Typography>
                     </CardContent>
-                </Card>
+                </Card> */}
             </main>
         )
     }

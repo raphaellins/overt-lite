@@ -286,6 +286,7 @@ class Game extends Component<IProps, IState> {
                         <form className={classes.formInput} noValidate autoComplete="off">
                             <div>
                                 <TextField 
+                                    type="number"
                                     name="initialGameNumber"
                                     id="initialGameNumber" 
                                     label="Initial Game Number" 
@@ -294,6 +295,7 @@ class Game extends Component<IProps, IState> {
                             </div>
                             <div>
                                 <TextField 
+                                    type="number"
                                     name="finalGameNumber"
                                     id="finalGameNumber" 
                                     label="Final Game Number" 
