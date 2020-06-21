@@ -1,0 +1,1 @@
+<h1>Simple project using Firebase functions (NodeJs) and ReactJs to manager Lottery games<h1>
