@@ -101,7 +101,6 @@ class NewDraw extends Component<IProps, IState> {
     }
 
     handleDateChange = (date: Date | null) => {
-        console.log('ENTROU AQUI', date)
         this.setState({drawDate: date});
       };
 
@@ -215,9 +214,9 @@ class NewDraw extends Component<IProps, IState> {
     handleSubmit = async (event: any) => {
         event.preventDefault();
 
-        const {drawNumber, ballsNumber} = this.state;
+        const {drawNumber, drawDate, ballsNumber} = this.state;
 
-        if(drawNumber == null || Number(drawNumber) <= 0){
+        if(drawNumber == null || Number(drawNumber) <= 0 || drawDate == null){
             this.setState({errors: ['Inform the Game Number']});
 
             return;
@@ -231,6 +230,7 @@ class NewDraw extends Component<IProps, IState> {
 
         var newDrawRequest = {
             drawNumber,
+            drawDate,
             numbersDrawn: ballsSelected?.map((ball: IBallState) => ball.value)
         }
 
@@ -304,11 +304,11 @@ class NewDraw extends Component<IProps, IState> {
                             <div>
                                 <TextField 
                                     type="number"
-                                    name="DrawNumber"
+                                    name="drawNumber"
                                     id="drawNumber" 
                                     label="Draw Number" 
                                     value={drawNumber}
-                                    onChange={(value) =>  this.handleChange(value)}/>
+                                    onChange={this.handleChange}/>
                             </div>
                             <div>
                             <MuiPickersUtilsProvider utils={DateFnsUtils}>

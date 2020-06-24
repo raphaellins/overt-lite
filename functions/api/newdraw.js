@@ -1,11 +1,15 @@
 const { db } = require('../util/admin');
 
-exports.postNewGame = async (request, response) => {
+exports.postNewDraw = async (request, response) => {
     if (request.body == null) {
         return response.status(400).json({ body: 'Must not be empty' });
     }
 
-    const { drawNumber, numbersDrawn } = request.body;
+    const { drawNumber, numbersDrawn, drawDate } = request.body;
+
+    if (drawDate == null) {
+        return response.status(400).json({ drawDate: 'Must not be empty' });
+    }
 
     if (drawNumber == null) {
         return response.status(400).json({ gameNumber: 'Must not be empty' });
@@ -25,10 +29,11 @@ exports.postNewGame = async (request, response) => {
 
     const newDraw = {
         drawNumber,
+        drawDate,
         numbersDrawn
     }
 
-    await db.collection('draws').add(newDraw);
+    const document = await db.collection('draws').add(newDraw);
 
-    return response.json(newDraw);
+    return response.json({...newDraw, drawId: document.id});
 };
