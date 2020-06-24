@@ -33,7 +33,42 @@ exports.postNewDraw = async (request, response) => {
         numbersDrawn
     }
 
+    matchDrawAndGame(newDraw);
+
     const document = await db.collection('draws').add(newDraw);
 
     return response.json({...newDraw, drawId: document.id});
 };
+
+matchDrawAndGame = (newDraw) => {
+
+    db.collection("games").where("gameNumber", "==", newDraw.drawNumber)
+        .get()
+        .then(function(snapshot){
+
+            snapshot.forEach(function(document){
+
+                if(document.data().ballsMatched != null){
+                    return;
+                }
+
+                const gameBalls = document.data().numbersPlayed;
+                const ballsMatched = [];
+
+                newDraw.numbersDrawn.forEach((ball) => {
+                    if(gameBalls.some((gBall) => gBall == ball)){
+                        ballsMatched.push(ball);
+                    }
+                });
+
+                db.collection("games").doc(document.id).update({
+                    numbersPlayed: document.data().numbersPlayed,
+                    gameNumber: document.data().gameNumber,
+                    ballsMatched: ballsMatched,
+                    countMatched: ballsMatched.length
+                });
+
+                console.log(ballsMatched);
+            })
+        })
+}
