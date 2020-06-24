@@ -22,6 +22,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { authMiddleWare } from '../util/auth'
 import { Theme, createStyles } from '@material-ui/core';
 import Game from '../components/Game';
+import NewDraw from '../components/NewDraw';
+import Account from './Account';
 
 const drawerWidth = 240;
 
@@ -73,7 +75,8 @@ interface IState {
     phoneNumber?: String,
     country?: String,
     username?:String,
-    errorMsg?:String
+	errorMsg?:String,
+	pageIndex?: number
 }
 
 interface IProps {
@@ -84,25 +87,18 @@ interface IProps {
 
 class home extends Component<IProps, IState> {
 	state: IState = {
-		render: true
-	};
-
-	loadNewGame = (event: any) => {
-		this.setState({ render: true });
-	};
-
-	loadLottery = (event: any) => {
-		this.setState({ render: false });
-	};
-
-	loadAccountPage = (event: any) => {
-		this.props.history.push('/account');
+		render: true,
+		pageIndex: 0
 	};
 
 	logoutHandler = (event: any) => {
 		localStorage.removeItem('AuthToken');
 		this.props.history.push('/login');
 	};
+
+	loadPage = (pageIndex: number)  =>{
+		this.setState({pageIndex : pageIndex});
+	}
 
 	constructor(props: any) {
 		super(props);
@@ -146,6 +142,7 @@ class home extends Component<IProps, IState> {
 
 	render() {
 		const { classes } = this.props;		
+		const {pageIndex} = this.state;
 		if (this.state.uiLoading === true) {
 			return (
 				<div className={classes.root}>
@@ -178,22 +175,28 @@ class home extends Component<IProps, IState> {
 							</p>
 						<Divider />
 						<List>
-							<ListItem button key="Lottery" onClick={this.loadLottery}>
+							<ListItem button key="Lottery" onClick={() =>  this.loadPage(0)}>
 								<ListItemIcon>
 									{' '}
 									<NotesIcon />{' '}
 								</ListItemIcon>
 								<ListItemText primary="Lottery" />
 							</ListItem>
-							<ListItem button key="NewGame" onClick={this.loadNewGame}>
+							<ListItem button key="NewDraw" onClick={() =>  this.loadPage(2)}>
+								<ListItemIcon>
+									{' '}
+									<NotesIcon />{' '}
+								</ListItemIcon>
+								<ListItemText primary="New Draw" />
+							</ListItem>
+							<ListItem button key="NewGame" onClick={() =>  this.loadPage(1)}>
 								<ListItemIcon>
 									{' '}
 									<NotesIcon />{' '}
 								</ListItemIcon>
 								<ListItemText primary="New Game" />
 							</ListItem>
-
-							<ListItem button key="Account" onClick={this.loadAccountPage}>
+							<ListItem button key="Account" onClick={() =>  this.loadPage(3)}>
 								<ListItemIcon>
 									{' '}
 									<AccountBoxIcon />{' '}
@@ -211,7 +214,13 @@ class home extends Component<IProps, IState> {
 						</List>
 					</Drawer>
 
-					<div>{this.state.render ? <Game /> : <Lottery />}</div>
+					<div>{
+						pageIndex == 0 ? <Lottery /> 
+							: pageIndex == 1 ? <Game />
+							: pageIndex == 2 ? <NewDraw />
+							: pageIndex == 3 ? <Account />
+							: <Lottery />
+						}</div>
 				</div>
 			);
 		}

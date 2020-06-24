@@ -16,6 +16,7 @@ const styles = ((theme: Theme) => (
     toolbar: theme.mixins.toolbar,
     root: {
         minWidth: 500,
+        marginBottom: 10
       },
       bullet: {
         display: 'inline-block',
@@ -103,8 +104,8 @@ class Lottery extends Component<IProps, IState> {
                                     <Typography variant="h5" component="h2" className={classes.numbers}>
 
                                     {
-                                        game.numbersPlayed.map((ballNumber: string) => {
-                                           return (<span className={classes.ball}>{ballNumber}</span>)
+                                        game.numbersPlayed.map((ballNumber: string, index: number) => {
+                                            return (<span className={classes.ball} key={game.gameId + ballNumber}>{ballNumber}</span>)
                                         })
                                     }
                                     </Typography>
