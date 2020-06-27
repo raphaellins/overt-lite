@@ -6,7 +6,7 @@ const app = require('express')();
 const auth = require('./util/auth');
 const {listLoteries} = require('./api/lottery')
 const { loginUser, getUserDetail, signUpUser } = require('./api/users')
-const {postNewGame, listGames} = require('./api/newgame');
+const {postNewGame, listGames, deleteGame} = require('./api/newgame');
 const {postNewDraw} = require('./api/newdraw');
 
 app.use(cors({ origin: true }));
@@ -15,6 +15,7 @@ app.use(cors({ origin: true }));
  app.get('/loteries', auth, listLoteries);
  app.post('/new-draw', auth, postNewDraw);
  app.post('/new-game', auth, postNewGame);
+ app.delete('/game/:gameId', auth, deleteGame);
  app.get('/games', auth, listGames);
  app.get('/user', auth, getUserDetail);
  app.post('/signup', signUpUser);

@@ -49,9 +49,10 @@ exports.listGames = async (request, response) => {
     try {
         let games = [];
         const gamesPlayed = await db.collection('games').orderBy('gameNumber', 'desc').get();
-        const drawnFound =  await db.collection('draws').get();
+        const drawnFound = await db.collection('draws').get();
 
         for (var gameIndex in gamesPlayed.docs) {
+            const gameId = gamesPlayed.docs[gameIndex].id;
             const gamePlayed = gamesPlayed.docs[gameIndex].data();
 
             let drawGame = {
@@ -60,14 +61,14 @@ exports.listGames = async (request, response) => {
 
             if (drawnFound.size > 0) {
                 const drawMatch = _.findLast(drawnFound.docs, (document) => document.data().drawNumber == gamePlayed.gameNumber);
-                
-                if(drawMatch != null){
+
+                if (drawMatch != null) {
                     drawGame = drawMatch.data();
                 }
             }
 
             const game = {
-                gameId: gamePlayed.id,
+                gameId: gameId,
                 gameNumber: gamePlayed.gameNumber,
                 numbersPlayed: gamePlayed.numbersPlayed,
                 ballsMatched: gamePlayed.ballsMatched,
@@ -80,7 +81,27 @@ exports.listGames = async (request, response) => {
 
         return response.json(games);
     } catch (error) {
-        console.log(error);
-        return response.status(500).json({ error: error.code });
+        return response.status(500).json({ error: error });
     };
+}
+
+exports.deleteGame = async (request, response) => {
+
+    if (request.params == null) {
+        return response.status(400).json({ body: 'Must not be empty' });
+    }
+
+    const { gameId } = request.params;
+
+    if (gameId == null) {
+        return response.status(400).json({ gameId: 'Must not be empty' });
+    }
+
+    try {
+        await db.collection('games').doc(gameId).delete();
+
+        return response.json({ result: `Game Id: ${gameId} deleted` });
+    } catch (error) {
+        return response.status(500).json({ error: error });
+    }
 }
