@@ -1,4 +1,5 @@
 const { db } = require('../util/admin');
+var _ = require('lodash');
 
 exports.postNewGame = async (request, response) => {
     if (request.body == null) {
@@ -46,24 +47,40 @@ exports.postNewGame = async (request, response) => {
 
 exports.listGames = async (request, response) => {
     try {
-        const data = await db.collection('games').orderBy('gameNumber', 'desc').get();
-
-        //TODO separete the result from gamesMatched from others
-        //TODO gamesMatched will be ordered by gameNumber desc
-        //TODO the others will be ordered by gameNumber asc
-        //INSTALL lodash
-
         let games = [];
-        data.forEach((doc) => {
-            games.push({
-                gameId: doc.id,
-                gameNumber: doc.data().gameNumber,
-                numbersPlayed: doc.data().numbersPlayed,
-            });
-        });
+        const gamesPlayed = await db.collection('games').orderBy('gameNumber', 'desc').get();
+        const drawnFound =  await db.collection('draws').get();
+
+        for (var gameIndex in gamesPlayed.docs) {
+            const gamePlayed = gamesPlayed.docs[gameIndex].data();
+
+            let drawGame = {
+                numbersDrawn: []
+            };
+
+            if (drawnFound.size > 0) {
+                const drawMatch = _.findLast(drawnFound.docs, (document) => document.data().drawNumber == gamePlayed.gameNumber);
+                
+                if(drawMatch != null){
+                    drawGame = drawMatch.data();
+                }
+            }
+
+            const game = {
+                gameId: gamePlayed.id,
+                gameNumber: gamePlayed.gameNumber,
+                numbersPlayed: gamePlayed.numbersPlayed,
+                ballsMatched: gamePlayed.ballsMatched,
+                countMatched: gamePlayed.countMatched,
+                numbersDrawn: drawGame.numbersDrawn
+            };
+
+            games.push(game);
+        }
 
         return response.json(games);
     } catch (error) {
+        console.log(error);
         return response.status(500).json({ error: error.code });
     };
 }
