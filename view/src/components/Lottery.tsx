@@ -43,13 +43,11 @@ const styles = ((theme: Theme) => (
         },
         ballChecked: {
             backgroundColor: 'green',
-            border: '1px solid',
             borderRadius: 50,
             padding: 2,
             marginRight: 2,
             color: 'white',
             fontWeight: 'bold',
-            cursor: 'pointer'
         },
         ballMatched: {
             backgroundColor: 'green',

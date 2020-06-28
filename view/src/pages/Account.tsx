@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { Card, CardActions, CardContent, Divider, Button, Grid, TextField, Theme, createStyles } from '@material-ui/core';
 
 import clsx from 'clsx';
@@ -133,44 +132,6 @@ class account extends Component<IProps, IState> {
 		});
 	};
 
-	handleImageChange = (event: any) => {
-		this.setState({
-			image: event.target.files[0]
-		});
-	};
-
-	profilePictureHandler = (event: any) => {
-		event.preventDefault();
-		this.setState({
-			uiLoading: true
-		});
-		authMiddleWare(this.props.history);
-		const authToken = localStorage.getItem('AuthToken');
-		let form_data = new FormData();
-		form_data.append('image', this.state.image ? this.state.image : '' );
-		form_data.append('content', this.state.content ? this.state.content : '');
-		axios.defaults.headers.common = { Authorization: `${authToken}` };
-		axios
-			.post('/user/image', form_data, {
-				headers: {
-					'content-type': 'multipart/form-data'
-				}
-			})
-			.then(() => {
-				window.location.reload();
-			})
-			.catch((error) => {
-				if (error.response.status === 403) {
-					this.props.history?.push('/login');
-				}
-				console.log(error);
-				this.setState({
-					uiLoading: false,
-					imageError: 'Error in posting the data'
-				});
-			});
-	};
-
 	updateFormValues = (event: any) => {
 		event.preventDefault();
 		this.setState({ buttonLoading: true });
@@ -218,27 +179,6 @@ class account extends Component<IProps, IState> {
 									<Typography className={classes.locationText} gutterBottom variant="h4">
 										{this.state.firstName} {this.state.lastName}
 									</Typography>
-									<Button
-										variant="outlined"
-										color="primary"
-										type="submit"
-										size="small"
-										startIcon={<CloudUploadIcon />}
-										className={classes.uploadButton}
-										onClick={this.profilePictureHandler}
-									>
-										Upload Photo
-									</Button>
-									<input type="file" onChange={this.handleImageChange} />
-
-									{this.state.imageError ? (
-										<div className={classes.customError}>
-											{' '}
-											Wrong Image Format || Supported Format are PNG and JPG
-										</div>
-									) : (
-										false
-									)}
 								</div>
 							</div>
 							<div className={classes.progress} />
