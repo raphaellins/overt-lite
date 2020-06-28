@@ -72,3 +72,48 @@ matchDrawAndGame = (newDraw) => {
             })
         })
 }
+
+exports.getAllDraws = async (request, response) => {
+    try {
+        let draws = [];
+        const drawList = await db.collection('draws').orderBy('drawNumber', 'desc').get();
+
+        for (var drawIndex in drawList.docs) {
+            const drawId = drawList.docs[drawIndex].id;
+            const drawDone = drawList.docs[drawIndex].data();
+
+            const draw = {
+                drawId: drawId,
+                drawNumber: drawDone.drawNumber,
+                numbersDrawn: drawDone.numbersDrawn,
+            };
+
+            draws.push(draw);
+        }
+
+        return response.json(draws);
+    } catch (error) {
+        return response.status(500).json({ error: error });
+    };
+}
+
+exports.deleteDraw = async (request, response) => {
+
+    if (request.params == null) {
+        return response.status(400).json({ body: 'Must not be empty' });
+    }
+
+    const { drawId } = request.params;
+
+    if (drawId == null) {
+        return response.status(400).json({ drawId: 'Must not be empty' });
+    }
+
+    try {
+        await db.collection('draws').doc(drawId).delete();
+
+        return response.json({ result: `Draw Id: ${drawId} deleted` });
+    } catch (error) {
+        return response.status(500).json({ error: error });
+    }
+}

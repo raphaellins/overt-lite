@@ -105,3 +105,27 @@ exports.deleteGame = async (request, response) => {
         return response.status(500).json({ error: error });
     }
 }
+
+exports.getAllGames = async (request, response) => {
+    try {
+        let games = [];
+        const gamesPlayed = await db.collection('games').orderBy('gameNumber', 'desc').get();
+
+        for (var gameIndex in gamesPlayed.docs) {
+            const gameId = gamesPlayed.docs[gameIndex].id;
+            const gamePlayed = gamesPlayed.docs[gameIndex].data();
+
+            const game = {
+                gameId: gameId,
+                gameNumber: gamePlayed.gameNumber,
+                numbersPlayed: gamePlayed.numbersPlayed,
+            };
+
+            games.push(game);
+        }
+
+        return response.json(games);
+    } catch (error) {
+        return response.status(500).json({ error: error });
+    };
+}
