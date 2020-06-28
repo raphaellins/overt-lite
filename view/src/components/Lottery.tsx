@@ -1,12 +1,15 @@
 import React, { Component } from 'react'
 
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, Icon, createStyles } from '@material-ui/core';
+import { Theme, Icon, createStyles, IconButton, CircularProgress } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios';
 import * as _ from 'lodash';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -53,7 +56,18 @@ const styles = ((theme: Theme) => (
         },
         numbers: {
             marginBottom: 10
-        }
+        },
+        cardHeader: {
+            marginBottom: 10
+        },
+        uiProgess: {
+            position: 'fixed',
+            Index: '1000',
+            height: '31px',
+            width: '31px',
+            left: '50%',
+            top: '35%'
+        },
     }))
 );
 
@@ -82,7 +96,7 @@ interface IState {
     password?: String;
     errors?: Error;
     loading?: boolean;
-    retrievedData?: IGame[]
+    retrievedData?: IGame[],
 }
 
 class Lottery extends Component<IProps, IState> {
@@ -94,6 +108,10 @@ class Lottery extends Component<IProps, IState> {
     }
 
     componentWillMount = async () => {
+        this.retrieveData();
+    }
+
+    retrieveData = async () => {
         const authToken = localStorage.getItem('AuthToken');
         axios.defaults.headers.common = { Authorization: `${authToken}` };
 
@@ -139,20 +157,55 @@ class Lottery extends Component<IProps, IState> {
         this.setState({ retrievedData: allGames });
     }
 
+    handleDelete = async (game: IGame) => {
+        try {
+
+            this.setState({ loading: true });
+            await axios.delete(`https://us-central1-overtlite.cloudfunctions.net/api/game/${game.gameId}`);
+
+            await this.retrieveData();
+
+            this.setState({ loading: false });
+        } catch (error) {
+            this.setState({ loading: false });
+            console.log(error);
+        }
+    }
+
     render() {
         const { classes } = this.props;
         const { retrievedData } = this.state;
-        return (
-            <main className={classes.content}>
+        if (this.state.loading === true) {
+            return (
+                <div className={classes.root}>
+                    {this.state.loading && <CircularProgress size={150} className={classes.uiProgess} />}
+                </div>
+            );
+        } else {
+            return (<main className={classes.content}>
                 <div className={classes.toolbar} />
                 {
                     retrievedData?.map((game: IGame) => {
                         return (
                             <Card className={classes.root} key={game.gameId}>
                                 <CardContent>
-                                    <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                        Game: {game.gameNumber} - Matched: {game.countMatched}
-                                    </Typography>
+                                    <Grid container spacing={3} className={classes.cardHeader}>
+                                        <Grid item xs>
+                                            <Typography className={classes.title} color="textSecondary" gutterBottom>
+                                                Game: {game.gameNumber}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs>
+                                            <Typography className={classes.title} color="textSecondary" gutterBottom>
+                                                Matched: {game.countMatched}
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item xs>
+                                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.handleDelete(game)}>
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Grid>
+                                    </Grid>
 
                                     <Typography variant="h5" component="h2" className={classes.numbers}>
 
@@ -176,8 +229,8 @@ class Lottery extends Component<IProps, IState> {
                         )
                     })
                 }
-            </main>
-        )
+            </main>)
+        }
     }
 }
 
