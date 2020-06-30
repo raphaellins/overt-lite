@@ -195,6 +195,10 @@ class Game extends Component<IProps, IState> {
                     checked: false
                 },
                 {
+                    value: "20",
+                    checked: false
+                },
+                {
                     value: "21",
                     checked: false
                 },

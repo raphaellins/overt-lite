@@ -79,7 +79,7 @@ class login extends Component<IProps, IState> {
 	}
 
 	componentWillReceiveProps(nextProps: any) {
-		if (nextProps.UI.errors) {
+		if (nextProps?.UI?.errors) {
 			this.setState({
 				errors: nextProps.UI.errors
 			});

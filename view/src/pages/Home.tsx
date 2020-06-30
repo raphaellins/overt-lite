@@ -20,10 +20,11 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { authMiddleWare } from '../util/auth'
-import { Theme, createStyles } from '@material-ui/core';
+import { Theme, createStyles, BottomNavigationAction, BottomNavigation, Button } from '@material-ui/core';
 import Game from '../components/Game';
 import NewDraw from '../components/NewDraw';
 import Account from './Account';
+import RestoreIcon from '@material-ui/icons/Restore';
 
 const drawerWidth = 240;
 
@@ -76,7 +77,8 @@ interface IState {
     country?: String,
     username?:String,
 	errorMsg?:String,
-	pageIndex?: number
+	pageIndex?: number,
+	left?: boolean
 }
 
 interface IProps {
@@ -84,7 +86,7 @@ interface IProps {
     classes: any;
 }
 
-
+type Anchor = 'top' | 'left' | 'bottom' | 'right';
 class home extends Component<IProps, IState> {
 	state: IState = {
 		render: true,
@@ -94,10 +96,12 @@ class home extends Component<IProps, IState> {
 	logoutHandler = (event: any) => {
 		localStorage.removeItem('AuthToken');
 		this.props.history.push('/login');
+
+		this.setState({left: false});
 	};
 
 	loadPage = (pageIndex: number)  =>{
-		this.setState({pageIndex : pageIndex});
+		this.setState({pageIndex : pageIndex, left: false});
 	}
 
 	constructor(props: any) {
@@ -119,7 +123,6 @@ class home extends Component<IProps, IState> {
 		axios
 			.get('https://us-central1-overtlite.cloudfunctions.net/api/user')
 			.then((response) => {
-				console.log(response.data);
 				this.setState({
 					firstName: response.data.userCredentials.firstName,
 					lastName: response.data.userCredentials.lastName,
@@ -135,14 +138,28 @@ class home extends Component<IProps, IState> {
 				if(error.response.status === 403) {
 					this.props.history.push('/login')
 				}
-				console.log(error);
 				this.setState({ errorMsg: 'Error in retrieving the data' });
 			});
 	};
 
+	 toggleDrawer = (anchor: Anchor, open: boolean) => (
+		event: React.KeyboardEvent | React.MouseEvent,
+	  ) => {
+
+		if (
+		  event.type === 'keydown' &&
+		  ((event as React.KeyboardEvent).key === 'Tab' ||
+			(event as React.KeyboardEvent).key === 'Shift')
+		) {
+		  return;
+		}
+		
+		this.setState({...this.state, [anchor]: open})
+	  };
+
 	render() {
 		const { classes } = this.props;		
-		const {pageIndex} = this.state;
+		const {pageIndex, left} = this.state;
 		if (this.state.uiLoading === true) {
 			return (
 				<div className={classes.root}>
@@ -151,10 +168,11 @@ class home extends Component<IProps, IState> {
 			);
 		} else {
 			return (
-				<div className={classes.root}>
+				<div className={classes.root} >
 					<CssBaseline />
 					<AppBar position="fixed" className={classes.appBar}>
 						<Toolbar>
+						<Button onClick={this.toggleDrawer("left", true)}>Menu</Button>
 							<Typography variant="h6" noWrap>
 								Overt Lite
 							</Typography>
@@ -162,7 +180,9 @@ class home extends Component<IProps, IState> {
 					</AppBar>
 					<Drawer
 						className={classes.drawer}
-						variant="permanent"
+						anchor="left"
+						open={left}
+						onClose={() => this.toggleDrawer('left', false)}
 						classes={{
 							paper: classes.drawerPaper
 						}}
