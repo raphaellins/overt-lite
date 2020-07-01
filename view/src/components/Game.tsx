@@ -1,13 +1,17 @@
 import React, { Component } from 'react'
 
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, Icon, createStyles, TextField, Button, Grid, IconButton, CircularProgress } from '@material-ui/core';
+import { Theme, Icon, createStyles, TextField, Button, Grid, IconButton, CircularProgress, Modal } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import axios from 'axios';
 import * as _ from 'lodash';
 import DeleteIcon from '@material-ui/icons/Delete';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import CloseIcon from '@material-ui/icons/Close';
+import SaveIcon from '@material-ui/icons/Save';
+import { stat } from 'fs';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -77,6 +81,19 @@ const styles = ((theme: Theme) => (
             left: '50%',
             top: '35%'
         },
+        paper: {
+            position: 'absolute',
+            width: 400,
+            backgroundColor: theme.palette.background.paper,
+            border: '2px solid #000',
+            boxShadow: theme.shadows[5],
+            padding: theme.spacing(2, 4, 3),
+        },
+        modalStyle: {
+            top: '50%',
+            left: '50%',
+            transform: "translate(-50%, -50%)"
+        }
     }))
 );
 
@@ -92,6 +109,9 @@ interface IState {
     finalGameNumber?: string,
     errors?: Array<string>,
     retrievedData?: IGame[],
+    modalOpened?: boolean,
+    gameNumberDuplicate?: string,
+    gameToDuplicate?: IGame
 }
 
 interface IBallState {
@@ -100,9 +120,20 @@ interface IBallState {
 }
 
 interface IGame {
-    gameNumber: string,
+    gameNumber?: string,
     numbersPlayed: string[],
-    gameId: string,
+    gameId?: string,
+}
+
+function getModalStyle() {
+    const top = 50;
+    const left = 50;
+
+    return {
+        top: `${top}%`,
+        left: `${left}%`,
+        transform: `translate(-${top}%, -${left}%)`,
+    };
 }
 
 class Game extends Component<IProps, IState> {
@@ -117,6 +148,8 @@ class Game extends Component<IProps, IState> {
             loading: false,
             initialGameNumber: '',
             finalGameNumber: '',
+            gameNumberDuplicate: '',
+            gameToDuplicate: undefined,
             ballsNumber: [
                 {
                     value: "01",
@@ -332,17 +365,60 @@ class Game extends Component<IProps, IState> {
         }
     }
 
+    handleDuplicate = async (game: IGame) => {
+        this.setState({ gameToDuplicate: game });
+
+        this.modalState(true);
+    }
+
+    duplicateGame = async () => {
+        this.setState({ loading: true });
+
+        try {
+            const { gameToDuplicate, gameNumberDuplicate } = this.state;
+
+            if (gameToDuplicate == null) {
+                return;
+            }
+
+            var newGameRequest = {
+                initialGameNumber: gameNumberDuplicate,
+                finalGameNumber: gameNumberDuplicate,
+                numbersPlayed: gameToDuplicate.numbersPlayed
+            }
+
+            const authToken = localStorage.getItem('AuthToken');
+
+            axios.defaults.headers.common = { Authorization: `${authToken}` };
+
+            const { data } = await axios
+                .post('https://us-central1-overtlite.cloudfunctions.net/api/new-game', newGameRequest)
+
+            await this.retrieveData();
+
+            this.modalState(false);
+
+            this.setState(this.initiateState());
+        } catch (error) {
+            this.setState({ loading: false });
+        }
+    }
+
+    modalState = async (state: boolean) => {
+        this.setState({ modalOpened: state, gameNumberDuplicate: '' });
+    }
+
     render() {
         const { classes } = this.props;
-        const { loading, initialGameNumber, finalGameNumber, ballsNumber, errors, retrievedData } = this.state;
-        
+        const { gameNumberDuplicate, loading, initialGameNumber, finalGameNumber, ballsNumber, errors, retrievedData, modalOpened } = this.state;
+
         if (this.state.loading === true) {
             return (
                 <div className={classes.root}>
                     {this.state.loading && <CircularProgress size={150} className={classes.uiProgess} />}
                 </div>
             );
-        }else{
+        } else {
             return (
                 <main className={classes.content}>
                     <div className={classes.toolbar} />
@@ -408,7 +484,7 @@ class Game extends Component<IProps, IState> {
                                         }
                                     </Typography>
                                 </div>
-    
+
                                 <div className={classes.inputField}>
                                     <Button
                                         type="submit"
@@ -427,7 +503,7 @@ class Game extends Component<IProps, IState> {
                                     )}
                                 </div>
                             </form>
-    
+
                         </CardContent>
                     </Card>
                     {
@@ -445,9 +521,12 @@ class Game extends Component<IProps, IState> {
                                                 <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.handleDelete(game)}>
                                                     <DeleteIcon />
                                                 </IconButton>
+                                                <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.handleDuplicate(game)}>
+                                                    <RefreshIcon />
+                                                </IconButton>
                                             </Grid>
                                         </Grid>
-    
+
                                         <Typography variant="h5" component="h2" className={classes.numbers}>
                                             {
                                                 game.numbersPlayed.map((ballNumber: string, index: number) => {
@@ -457,16 +536,43 @@ class Game extends Component<IProps, IState> {
                                         </Typography>
                                     </CardContent>
                                 </Card>
+
                             )
                         })
                     }
+
+                    <Modal
+                        open={modalOpened ? modalOpened : false}
+                        aria-labelledby="simple-modal-title"
+                        aria-describedby="simple-modal-description"
+                    >
+                        <div className={[classes.paper, classes.modalStyle].join(' ')}>
+
+                            <div>
+                                <TextField
+                                    type="number"
+                                    name="gameNumberDuplicate"
+                                    id="gameNumberDuplicate"
+                                    label="Game Number"
+                                    value={gameNumberDuplicate}
+                                    onChange={this.handleChange} />
+                            </div>
+
+                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.modalState(false)}>
+                                <CloseIcon />
+                            </IconButton>
+                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.duplicateGame()}>
+                                <SaveIcon />
+                            </IconButton>
+                        </div>
+                    </Modal>
                 </main>
             )
         }
-        
-        
-        
-        
+
+
+
+
     }
 }
 
