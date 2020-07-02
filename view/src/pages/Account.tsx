@@ -232,7 +232,6 @@ class account extends Component<IProps, IState> {
 											label="Phone Number"
 											margin="dense"
 											name="phone"
-											type="number"
 											variant="outlined"
 											disabled={true}
 											value={this.state.phoneNumber}

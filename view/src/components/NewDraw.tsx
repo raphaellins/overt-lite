@@ -256,22 +256,18 @@ class NewDraw extends Component<IProps, IState> {
             numbersDrawn: ballsSelected?.map((ball: IBallState) => ball.value)
         }
 
-        console.log(newDrawRequest);
-
         const authToken = localStorage.getItem('AuthToken');
 
 		axios.defaults.headers.common = { Authorization: `${authToken}` };
-
         
         try{
             const {data} = await axios
             .post('https://us-central1-overtlite.cloudfunctions.net/api/new-draw', newDrawRequest)
            
-
+            await this.retrieveData();
+            
             this.setState(this.initiateState());
         }catch(error){
-            //TODO dont get the field with wrong value 
-            // this.setState({errors: [error.response.data]})
             this.setState({ loading: false });
         }
        

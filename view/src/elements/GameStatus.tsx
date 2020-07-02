@@ -32,7 +32,8 @@ const styles = ((theme: Theme) => (
         },
         matchedTitle: {
             fontSize: 18,
-            color: 'green'
+            color: 'green',
+            fontWeight: 'bold'
         },
         pos: {
             marginBottom: 12,
@@ -125,7 +126,7 @@ class GameStatus extends Component<IProps, IState> {
                                             {
                                                 game.countMatched ? 
                                                      (
-                                                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                                                        <Typography className={game.countMatched >= 11 ? classes.matchedTitle : classes.title} color="textSecondary" gutterBottom>
                                                             Matched: {game.countMatched}
                                                         </Typography>
                                                     )
