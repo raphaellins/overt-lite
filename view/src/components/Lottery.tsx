@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import GameStatus from '../elements/GameStatus';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -29,6 +30,10 @@ const styles = ((theme: Theme) => (
         },
         title: {
             fontSize: 18,
+        },
+        matchedTitle: {
+            fontSize: 18,
+            color: 'green'
         },
         pos: {
             marginBottom: 12,
@@ -66,12 +71,19 @@ const styles = ((theme: Theme) => (
             left: '50%',
             top: '35%'
         },
+        line: {
+            marginBottom: 50,
+            marginTop: 50,
+            color: 'gray'
+        }
     }))
 );
 
 interface IProps {
     history?: Array<String>;
     classes?: any;
+    gameFinished?: IGame[],
+    gameQueued?: IGame[]
 }
 
 interface IBallState {
@@ -95,6 +107,8 @@ interface IState {
     errors?: Error;
     loading?: boolean;
     retrievedData?: IGame[],
+    gameFinished?: IGame[],
+    gameQueued?: IGame[]
 }
 
 class Lottery extends Component<IProps, IState> {
@@ -113,12 +127,13 @@ class Lottery extends Component<IProps, IState> {
         const authToken = localStorage.getItem('AuthToken');
         axios.defaults.headers.common = { Authorization: `${authToken}` };
 
-        let allGames: Array<IGame> = [];
+        let gamesQueued: Array<IGame> = [];
+        let gamesFinished: Array<IGame> = [];
 
         try {
             const { data } = await axios.get('https://us-central1-overtlite.cloudfunctions.net/api/games');
 
-            let gamesFinished: Array<IGame> = _.chain(data)
+             gamesFinished  = _.chain(data)
                 .filter((game: IGame) => game.numbersDrawn.length > 0)
                 .sortBy('gameNumber')
                 .reverse()
@@ -141,18 +156,16 @@ class Lottery extends Component<IProps, IState> {
                 }
             });
 
-            const gamesQueued: IGame[] = _.chain(data)
+             gamesQueued = _.chain(data)
                 .filter((game: IGame) => game.numbersDrawn.length == 0)
                 .sortBy('gameNumber')
                 .value();
 
-            allGames.push.apply(allGames, gamesQueued);
-            allGames.push.apply(allGames, gamesFinished);
         } catch (error) {
             console.log(error);
         }
 
-        this.setState({ retrievedData: allGames });
+        this.setState({ gameFinished: gamesFinished, gameQueued: gamesQueued });
     }
 
     handleDelete = async (game: IGame) => {
@@ -172,7 +185,7 @@ class Lottery extends Component<IProps, IState> {
 
     render() {
         const { classes } = this.props;
-        const { retrievedData } = this.state;
+        const { gameFinished, gameQueued } = this.state;
         if (this.state.loading === true) {
             return (
                 <div className={classes.root}>
@@ -183,50 +196,21 @@ class Lottery extends Component<IProps, IState> {
             return (<main className={classes.content}>
                 <div className={classes.toolbar} />
                 {
-                    retrievedData?.map((game: IGame) => {
+                    gameQueued?.map((game: IGame) => {
                         return (
-                            <Card className={classes.root} key={game.gameId}>
-                                <CardContent>
-                                    <Grid container spacing={3} className={classes.cardHeader}>
-                                        <Grid item xs>
-                                            <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                                Game: {game.gameNumber}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs>
-                                            <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                                Matched: {game.countMatched}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs>
-                                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.handleDelete(game)}>
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </Grid>
-                                    </Grid>
-
-                                    <Typography variant="h5" component="h2" className={classes.numbers}>
-
-                                        {
-                                            game.numbersPlayed.map((ballNumber: string, index: number) => {
-                                                return (<span className={classes.ball} key={game.gameId + ballNumber}>{ballNumber}</span>)
-                                            })
-                                        }
-                                    </Typography>
-
-                                    <Typography variant="h5" component="h2" className={classes.numbers}>
-
-                                        {
-                                            game.numbersState?.map((ballNumber: IBallState, index: number) => {
-                                                return (<span className={ballNumber.checked ? classes.ballChecked : classes.ball} key={game.gameId + ballNumber.value}>{ballNumber.value}</span>)
-                                            })
-                                        }
-                                    </Typography>
-                                </CardContent>
-                            </Card>
+                            <GameStatus game={game} handleDelete={this.handleDelete}></GameStatus>
                         )
                     })
                 }
+                <hr className={classes.line} />
+                {
+                    gameFinished?.map((game: IGame) => {
+                        return (
+                            <GameStatus game={game} handleDelete={this.handleDelete}></GameStatus>
+                        )
+                    })
+                }
+
             </main>)
         }
     }
