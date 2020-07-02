@@ -20,11 +20,10 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { authMiddleWare } from '../util/auth'
-import { Theme, createStyles, BottomNavigationAction, BottomNavigation, Button } from '@material-ui/core';
+import { Theme, createStyles, Button } from '@material-ui/core';
 import Game from '../components/Game';
 import NewDraw from '../components/NewDraw';
 import Account from './Account';
-import RestoreIcon from '@material-ui/icons/Restore';
 
 const drawerWidth = 240;
 
