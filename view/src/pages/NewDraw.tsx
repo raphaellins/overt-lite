@@ -248,8 +248,6 @@ class NewDraw extends Component<IProps, IState> {
 
         const ballsSelected = ballsNumber?.filter((ball:IBallState) =>  ball.checked);
 
-        console.log(ballsSelected);
-
         var newDrawRequest = {
             drawNumber,
             drawDate,
