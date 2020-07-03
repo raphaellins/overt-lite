@@ -3,12 +3,11 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import home from './pages/Home';
 import Login from './pages/Login';
 import Account from './pages/Account';
-import Lottery from './components/Lottery';
-import Game from './components/Game';
-import NewDraw from './components/NewDraw';
+import Lottery from './pages/Lottery';
+import Game from './pages/Game';
+import NewDraw from './pages/NewDraw';
 
 ReactDOM.render(
   (

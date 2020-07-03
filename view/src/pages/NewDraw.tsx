@@ -261,7 +261,7 @@ class NewDraw extends Component<IProps, IState> {
 		axios.defaults.headers.common = { Authorization: `${authToken}` };
         
         try{
-            const {data} = await axios
+            await axios
             .post('https://us-central1-overtlite.cloudfunctions.net/api/new-draw', newDrawRequest)
            
             await this.retrieveData();
@@ -280,7 +280,7 @@ class NewDraw extends Component<IProps, IState> {
 
         const ballsSelected = currentBalls?.filter((ball:IBallState) =>  ball.checked);
 
-        if(ballsSelected && ballsSelected?.length == 15 && currentChange){
+        if(ballsSelected && ballsSelected?.length === 15 && currentChange){
             this.setState({
                 errors: [
                     'Only 15 numbers'
@@ -296,7 +296,7 @@ class NewDraw extends Component<IProps, IState> {
         });
 
         currentBalls?.forEach((ball: IBallState) => {
-            if(ball.value == ballNumber.value){
+            if(ball.value === ballNumber.value){
                 ball.checked = currentChange;
             }
         })

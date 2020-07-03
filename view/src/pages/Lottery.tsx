@@ -1,15 +1,9 @@
 import React, { Component } from 'react'
 
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, Icon, createStyles, IconButton, CircularProgress } from '@material-ui/core';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
+import { Theme, createStyles, CircularProgress } from '@material-ui/core';
 import axios from 'axios';
 import * as _ from 'lodash';
-import DeleteIcon from '@material-ui/icons/Delete';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
 import GameStatus from '../elements/GameStatus';
 
 const styles = ((theme: Theme) => (
@@ -143,11 +137,12 @@ class Lottery extends Component<IProps, IState> {
                 let ballScenario: Array<IBallState> = []
 
                 game.numbersDrawn.map((value: string) => {
-
                     ballScenario.push({
-                        checked: game.ballsMatched?.some((matched: string) => matched == value),
+                        checked: game.ballsMatched?.some((matched: string) => matched === value),
                         value: value
                     })
+
+                    return value;
                 })
 
                 return {
@@ -157,7 +152,7 @@ class Lottery extends Component<IProps, IState> {
             });
 
              gamesQueued = _.chain(data)
-                .filter((game: IGame) => game.numbersDrawn.length == 0)
+                .filter((game: IGame) => game.numbersDrawn.length === 0)
                 .sortBy('gameNumber')
                 .value();
 

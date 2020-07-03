@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
 
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, Icon, createStyles, IconButton, CircularProgress } from '@material-ui/core';
+import { Theme, createStyles, IconButton } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import axios from 'axios';
-import * as _ from 'lodash';
 import DeleteIcon from '@material-ui/icons/Delete';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 
 const styles = ((theme: Theme) => (

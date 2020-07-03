@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-
-
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -17,12 +15,9 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import NotesIcon from '@material-ui/icons/Notes';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
 import { authMiddleWare } from './util/auth'
 import { Theme, createStyles, Button } from '@material-ui/core';
-import getHistory from './util/react-router-global-history';
 import { withRouter, RouteProps, RouteComponentProps } from 'react-router-dom';
-import { connect } from 'http2';
 
 const drawerWidth = 240;
 
@@ -75,7 +70,6 @@ interface IState {
   country?: String,
   username?: String,
   errorMsg?: String,
-  pageIndex?: number,
   left?: boolean
 }
 
@@ -90,7 +84,6 @@ type Anchor = 'top' | 'left' | 'bottom' | 'right';
 class App extends Component<PropsType, IState, RouteProps> {
   state: IState = {
     render: true,
-    pageIndex: 0,
     firstName: '',
     lastName: '',
     profilePicture: '',
@@ -155,7 +148,7 @@ class App extends Component<PropsType, IState, RouteProps> {
 
   render() {
     const { classes } = this.props;
-    const { pageIndex, left } = this.state;
+    const { left } = this.state;
     if (this.state.uiLoading === true) {
       return (
         <div className={classes.root}>

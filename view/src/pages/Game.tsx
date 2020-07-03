@@ -124,17 +124,6 @@ interface IGame {
     gameId?: string,
 }
 
-function getModalStyle() {
-    const top = 50;
-    const left = 50;
-
-    return {
-        top: `${top}%`,
-        left: `${left}%`,
-        transform: `translate(-${top}%, -${left}%)`,
-    };
-}
-
 class Game extends Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
@@ -276,7 +265,7 @@ class Game extends Component<IProps, IState> {
         axios.defaults.headers.common = { Authorization: `${authToken}` };
 
         try {
-            const { data } = await axios
+            await axios
                 .post('https://us-central1-overtlite.cloudfunctions.net/api/new-game', newGameRequest)
 
 
@@ -294,7 +283,7 @@ class Game extends Component<IProps, IState> {
 
         const ballsSelected = currentBalls?.filter((ball: IBallState) => ball.checked);
 
-        if (ballsSelected && ballsSelected?.length == 15 && currentChange) {
+        if (ballsSelected && ballsSelected?.length === 15 && currentChange) {
             this.setState({
                 errors: [
                     'Only 15 numbers'
@@ -310,7 +299,7 @@ class Game extends Component<IProps, IState> {
         });
 
         currentBalls?.forEach((ball: IBallState) => {
-            if (ball.value == ballNumber.value) {
+            if (ball.value === ballNumber.value) {
                 ball.checked = currentChange;
             }
         })
@@ -390,7 +379,7 @@ class Game extends Component<IProps, IState> {
 
             axios.defaults.headers.common = { Authorization: `${authToken}` };
 
-            const { data } = await axios
+            await axios
                 .post('https://us-central1-overtlite.cloudfunctions.net/api/new-game', newGameRequest)
 
             await this.retrieveData();
