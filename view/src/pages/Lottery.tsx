@@ -5,6 +5,7 @@ import { Theme, createStyles, CircularProgress } from '@material-ui/core';
 import axios from 'axios';
 import * as _ from 'lodash';
 import GameStatus from '../elements/GameStatus';
+import { listAllGamesMatched, deleteGame } from '../util/Proxy';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -125,7 +126,8 @@ class Lottery extends Component<IProps, IState> {
         let gamesFinished: Array<IGame> = [];
 
         try {
-            const { data } = await axios.get('https://us-central1-overtlite.cloudfunctions.net/api/games');
+
+            const { data } = await listAllGamesMatched();
 
              gamesFinished  = _.chain(data)
                 .filter((game: IGame) => game.numbersDrawn.length > 0)
@@ -167,7 +169,8 @@ class Lottery extends Component<IProps, IState> {
         try {
 
             this.setState({ loading: true });
-            await axios.delete(`https://us-central1-overtlite.cloudfunctions.net/api/game/${game.gameId}`);
+
+            await deleteGame(game.gameId)
 
             await this.retrieveData();
 
