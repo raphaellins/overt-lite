@@ -5,12 +5,12 @@ import { Theme, createStyles, TextField, Button, Grid, IconButton, CircularProgr
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import axios from 'axios';
 import * as _ from 'lodash';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveIcon from '@material-ui/icons/Save';
+import { newGame, listAllGames, deleteGame } from '../util/Proxy';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -260,14 +260,8 @@ class Game extends Component<IProps, IState> {
             numbersPlayed: ballsSelected?.map((ball: IBallState) => ball.value)
         }
 
-        const authToken = localStorage.getItem('AuthToken');
-
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
-
         try {
-            await axios
-                .post('https://us-central1-overtlite.cloudfunctions.net/api/new-game', newGameRequest)
-
+            await newGame(newGameRequest);
 
             this.setState(this.initiateState());
         } catch (error) {
@@ -318,13 +312,11 @@ class Game extends Component<IProps, IState> {
     }
 
     retrieveData = async () => {
-        const authToken = localStorage.getItem('AuthToken');
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
-
         let allGames: Array<IGame> = [];
 
         try {
-            const { data } = await axios.get('https://us-central1-overtlite.cloudfunctions.net/api/games-all');
+
+            const { data } = await listAllGames();
 
             const gamesQueued: IGame[] = _.chain(data)
                 .sortBy('gameNumber')
@@ -342,7 +334,8 @@ class Game extends Component<IProps, IState> {
         try {
 
             this.setState({ loading: true });
-            await axios.delete(`https://us-central1-overtlite.cloudfunctions.net/api/game/${game.gameId}`);
+
+            await deleteGame(game.gameId);
 
             await this.retrieveData();
 
@@ -375,12 +368,7 @@ class Game extends Component<IProps, IState> {
                 numbersPlayed: gameToDuplicate.numbersPlayed
             }
 
-            const authToken = localStorage.getItem('AuthToken');
-
-            axios.defaults.headers.common = { Authorization: `${authToken}` };
-
-            await axios
-                .post('https://us-central1-overtlite.cloudfunctions.net/api/new-game', newGameRequest)
+            await newGame(newGameRequest);
 
             await this.retrieveData();
 

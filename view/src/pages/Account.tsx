@@ -3,82 +3,82 @@ import React, { Component } from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Card, CardActions, CardContent, Divider, Button, Grid, TextField, Theme, createStyles } from '@material-ui/core';
+import { Card, CardActions, CardContent, Divider, Grid, TextField, Theme, createStyles } from '@material-ui/core';
 
 import clsx from 'clsx';
-import axios from 'axios';
 import { authMiddleWare } from '../util/auth';
+import { GetUser } from '../util/Proxy';
 
 const styles = (theme: Theme) => (
-    createStyles({
-	content: {
-		flexGrow: 1,
-		padding: theme.spacing(3)
-	},
-	toolbar: theme.mixins.toolbar,
-	root: {},
-	details: {
-		display: 'flex'
-	},
-	avatar: {
-		height: 110,
-		width: 100,
-		flexShrink: 0,
-		flexGrow: 0
-	},
-	locationText: {
-		paddingLeft: '15px'
-	},
-	buttonProperty: {
-		position: 'absolute',
-		top: '50%'
-	},
-	uiProgess: {
-		position: 'fixed',
-		Index: '1000',
-		height: '31px',
-		width: '31px',
-		left: '50%',
-		top: '35%'
-	},
-	progess: {
-		position: 'absolute'
-	},
-	uploadButton: {
-		marginLeft: '8px',
-		margin: theme.spacing(1)
-	},
-	customError: {
-		color: 'red',
-		fontSize: '0.8rem',
-		marginTop: 10
-	},
-	submitButton: {
-		marginTop: '10px'
-	}
-}));
+	createStyles({
+		content: {
+			flexGrow: 1,
+			padding: theme.spacing(3)
+		},
+		toolbar: theme.mixins.toolbar,
+		root: {},
+		details: {
+			display: 'flex'
+		},
+		avatar: {
+			height: 110,
+			width: 100,
+			flexShrink: 0,
+			flexGrow: 0
+		},
+		locationText: {
+			paddingLeft: '15px'
+		},
+		buttonProperty: {
+			position: 'absolute',
+			top: '50%'
+		},
+		uiProgess: {
+			position: 'fixed',
+			Index: '1000',
+			height: '31px',
+			width: '31px',
+			left: '50%',
+			top: '35%'
+		},
+		progess: {
+			position: 'absolute'
+		},
+		uploadButton: {
+			marginLeft: '8px',
+			margin: theme.spacing(1)
+		},
+		customError: {
+			color: 'red',
+			fontSize: '0.8rem',
+			marginTop: 10
+		},
+		submitButton: {
+			marginTop: '10px'
+		}
+	}));
 
 interface IProps {
-    history?: Array<string>;
-    classes?: any;
+	history?: Array<string>;
+	classes?: any;
 }
 
 interface IState {
-    firstName?: String,
-    lastName?: String,
-    profilePicture?: String,
-    uiLoading?: boolean,
-    imageLoading?: boolean,
-    render?: boolean,
-    email?: String,
-    phoneNumber?: String,
-    country?: String,
-    username?:String,
-    errorMsg?:String,
-    buttonLoading?: boolean,
-    imageError?: String,
-    image?: string,
-    content?: string
+	firstName?: String,
+	lastName?: String,
+	profilePicture?: String,
+	uiLoading?: boolean,
+	imageLoading?: boolean,
+	render?: boolean,
+	email?: String,
+	phoneNumber?: String,
+	country?: String,
+	username?: String,
+	errorMsg?: String,
+	buttonLoading?: boolean,
+	imageError?: String,
+	image?: string,
+	content?: string
 }
 
 class account extends Component<IProps, IState> {
@@ -95,68 +95,36 @@ class account extends Component<IProps, IState> {
 			profilePicture: '',
 			uiLoading: true,
 			buttonLoading: false,
-            imageError: ''
-    		};
+			imageError: ''
+		};
 	}
 
-	componentWillMount = () => {
+	componentWillMount = async () => {
 		authMiddleWare(this.props.history);
-		const authToken = localStorage.getItem('AuthToken');
-		axios.defaults.headers.common = { Authorization: `${authToken}` };
-		axios
-			.get('/user')
-			.then((response) => {
-				console.log(response.data);
-				this.setState({
-					firstName: response.data.userCredentials.firstName,
-					lastName: response.data.userCredentials.lastName,
-					email: response.data.userCredentials.email,
-					phoneNumber: response.data.userCredentials.phoneNumber,
-					country: response.data.userCredentials.country,
-					username: response.data.userCredentials.username,
-					uiLoading: false
-				});
-			})
-			.catch((error) => {
-				if (error.response.status === 403) {
-					this.props.history?.push('/login');
-				}
-				console.log(error);
-				this.setState({ errorMsg: 'Error in retrieving the data' });
-			});
+
+		const response = await GetUser((error: any) => {
+			if (error.response.status === 403) {
+				this.props.history?.push('/login');
+			}
+			console.log(error);
+			this.setState({ errorMsg: 'Error in retrieving the data' });
+		});
+
+		this.setState({
+			firstName: response.data.userCredentials.firstName,
+			lastName: response.data.userCredentials.lastName,
+			email: response.data.userCredentials.email,
+			phoneNumber: response.data.userCredentials.phoneNumber,
+			country: response.data.userCredentials.country,
+			username: response.data.userCredentials.username,
+			uiLoading: false
+		});
 	};
 
 	handleChange = (event: any) => {
 		this.setState({
 			[event.target.name]: event.target.value
 		});
-	};
-
-	updateFormValues = (event: any) => {
-		event.preventDefault();
-		this.setState({ buttonLoading: true });
-		authMiddleWare(this.props.history);
-		const authToken = localStorage.getItem('AuthToken');
-		axios.defaults.headers.common = { Authorization: `${authToken}` };
-		const formRequest = {
-			firstName: this.state.firstName,
-			lastName: this.state.lastName,
-			country: this.state.country
-		};
-		axios
-			.post('/user', formRequest)
-			.then(() => {
-				this.setState({ buttonLoading: false });
-			})
-			.catch((error) => {
-				if (error.response.status === 403) {
-					this.props.history?.push('/login');
-				}
-				console.log(error);
-				this.setState({
-					buttonLoading: false
-				});
-			});
 	};
 
 	render() {
@@ -267,22 +235,6 @@ class account extends Component<IProps, IState> {
 							<CardActions />
 						</form>
 					</Card>
-					<Button
-						color="primary"
-						variant="contained"
-						type="submit"
-						className={classes.submitButton}
-						onClick={this.updateFormValues}
-						disabled={
-							this.state.buttonLoading ||
-							!this.state.firstName ||
-							!this.state.lastName ||
-							!this.state.country
-						}
-					>
-						Save details
-						{this.state.buttonLoading && <CircularProgress size={30} className={classes.progess} />}
-					</Button>
 				</main>
 			);
 		}

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,6 +17,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { authMiddleWare } from './util/auth'
 import { Theme, createStyles, Button } from '@material-ui/core';
 import { withRouter, RouteProps, RouteComponentProps } from 'react-router-dom';
+import { GetUser } from './util/Proxy';
 
 const drawerWidth = 240;
 
@@ -105,13 +105,16 @@ class App extends Component<PropsType, IState, RouteProps> {
   }
 
   componentWillMount = async () => {
-    try {
       authMiddleWare(this.props.history);
-      const authToken = localStorage.getItem('AuthToken');
-      axios.defaults.headers.common = { Authorization: `${authToken}` };
 
-      const response = await axios.get('https://us-central1-overtlite.cloudfunctions.net/api/user');
-
+      const response = await GetUser((error: any) => {
+        if (error.response.status === 403) {
+          this.props.history?.push('/login');
+        }
+        console.log(error);
+        this.setState({ errorMsg: 'Error in retrieving the data' });
+      });
+  
       this.setState({
         firstName: response.data.userCredentials.firstName,
         lastName: response.data.userCredentials.lastName,
@@ -119,16 +122,8 @@ class App extends Component<PropsType, IState, RouteProps> {
         phoneNumber: response.data.userCredentials.phoneNumber,
         country: response.data.userCredentials.country,
         username: response.data.userCredentials.username,
-        uiLoading: false,
-        profilePicture: response.data.userCredentials.imageUrl
+        uiLoading: false
       });
-    } catch (error) {
-      if (error.response.status === 403) {
-        this.props.history?.push('/login')
-      }
-      this.setState({ errorMsg: 'Error in retrieving the data', uiLoading: false });
-    }
-
   };
 
   toggleDrawer = (anchor: Anchor, open: boolean) => (

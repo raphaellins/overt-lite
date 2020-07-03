@@ -6,13 +6,13 @@ import { Theme, createStyles, TextField, Button, CircularProgress, Grid, IconBut
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import axios from 'axios';
 import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker,
-  } from '@material-ui/pickers';
-  import DeleteIcon from '@material-ui/icons/Delete';
-  import * as _ from 'lodash';
+} from '@material-ui/pickers';
+import DeleteIcon from '@material-ui/icons/Delete';
+import * as _ from 'lodash';
+import { newDraw, listAllDraws, deleteDraw } from '../util/Proxy';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -95,7 +95,7 @@ interface IState {
     ballsNumber?: Array<IBallState>,
     drawNumber?: string,
     drawDate?: Date | null,
-    errors?: Array<string> ,
+    errors?: Array<string>,
     retrievedData?: Array<IDraw>
 }
 
@@ -113,21 +113,21 @@ interface IDraw {
 
 class NewDraw extends Component<IProps, IState> {
     constructor(props: IProps) {
-		super(props);
+        super(props);
 
-		this.state = this.initiateState();
+        this.state = this.initiateState();
     }
 
     handleDateChange = (date: Date | null) => {
-        this.setState({drawDate: date});
-      };
+        this.setState({ drawDate: date });
+    };
 
     initiateState = () => {
         return {
             loading: false,
             drawNumber: '',
             drawDate: new Date(),
-            ballsNumber:  [ 
+            ballsNumber: [
                 {
                     value: "01",
                     checked: false
@@ -230,23 +230,23 @@ class NewDraw extends Component<IProps, IState> {
                 }
             ],
             errors: []
-		};
+        };
     }
 
     handleSubmit = async (event: any) => {
         event.preventDefault();
 
-        const {drawNumber, drawDate, ballsNumber} = this.state;
+        const { drawNumber, drawDate, ballsNumber } = this.state;
 
-        if(drawNumber == null || Number(drawNumber) <= 0 || drawDate == null){
-            this.setState({errors: ['Inform the Game Number']});
+        if (drawNumber == null || Number(drawNumber) <= 0 || drawDate == null) {
+            this.setState({ errors: ['Inform the Game Number'] });
 
             return;
         }
 
         this.setState({ loading: true });
 
-        const ballsSelected = ballsNumber?.filter((ball:IBallState) =>  ball.checked);
+        const ballsSelected = ballsNumber?.filter((ball: IBallState) => ball.checked);
 
         var newDrawRequest = {
             drawNumber,
@@ -254,21 +254,15 @@ class NewDraw extends Component<IProps, IState> {
             numbersDrawn: ballsSelected?.map((ball: IBallState) => ball.value)
         }
 
-        const authToken = localStorage.getItem('AuthToken');
+        try {
+            await newDraw(newDrawRequest);
 
-		axios.defaults.headers.common = { Authorization: `${authToken}` };
-        
-        try{
-            await axios
-            .post('https://us-central1-overtlite.cloudfunctions.net/api/new-draw', newDrawRequest)
-           
             await this.retrieveData();
-            
+
             this.setState(this.initiateState());
-        }catch(error){
+        } catch (error) {
             this.setState({ loading: false });
         }
-       
     }
 
     onClickBall = (ballNumber: IBallState) => {
@@ -276,9 +270,9 @@ class NewDraw extends Component<IProps, IState> {
 
         let currentBalls: IBallState[] | undefined = this.state.ballsNumber;
 
-        const ballsSelected = currentBalls?.filter((ball:IBallState) =>  ball.checked);
+        const ballsSelected = currentBalls?.filter((ball: IBallState) => ball.checked);
 
-        if(ballsSelected && ballsSelected?.length === 15 && currentChange){
+        if (ballsSelected && ballsSelected?.length === 15 && currentChange) {
             this.setState({
                 errors: [
                     'Only 15 numbers'
@@ -294,18 +288,18 @@ class NewDraw extends Component<IProps, IState> {
         });
 
         currentBalls?.forEach((ball: IBallState) => {
-            if(ball.value === ballNumber.value){
+            if (ball.value === ballNumber.value) {
                 ball.checked = currentChange;
             }
         })
 
-        this.setState({ballsNumber: currentBalls});
+        this.setState({ ballsNumber: currentBalls });
     }
 
     handleChange = (event: any) => {
-		this.setState({
-			[event.target.name]: event.target.value
-		});
+        this.setState({
+            [event.target.name]: event.target.value
+        });
     };
 
     componentWillMount = async () => {
@@ -313,31 +307,28 @@ class NewDraw extends Component<IProps, IState> {
     }
 
     retrieveData = async () => {
-        const authToken = localStorage.getItem('AuthToken');
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
-
         let allDraws: Array<IDraw> = [];
 
         try {
-            const { data } = await axios.get('https://us-central1-overtlite.cloudfunctions.net/api/draws-all');
+            const { data } = await listAllDraws();
 
             const drawsQueued: IDraw[] = _.chain(data)
                 .sortBy('drawNumber')
                 .value();
 
-                allDraws.push.apply(allDraws, drawsQueued);
+            allDraws.push.apply(allDraws, drawsQueued);
         } catch (error) {
             console.log(error);
         }
 
         this.setState({ retrievedData: allDraws });
     }
-    
+
     handleDelete = async (draw: IDraw) => {
         try {
-
             this.setState({ loading: true });
-            await axios.delete(`https://us-central1-overtlite.cloudfunctions.net/api/draw/${draw.drawId}`);
+
+            await deleteDraw(draw.drawId);
 
             await this.retrieveData();
 
@@ -350,111 +341,111 @@ class NewDraw extends Component<IProps, IState> {
 
     render() {
         const { classes } = this.props;
-        const {  loading, drawNumber, drawDate, ballsNumber , errors, retrievedData} = this.state;
+        const { loading, drawNumber, drawDate, ballsNumber, errors, retrievedData } = this.state;
         if (this.state.loading === true) {
             return (
                 <div className={classes.root}>
                     {this.state.loading && <CircularProgress size={150} className={classes.uiProgess} />}
                 </div>
             );
-        }else{
+        } else {
             return (
-            <main className={classes.content}>
-                <div className={classes.toolbar} />
-                <Card className={classes.root}>
-                    <CardContent>
-                        <form className={classes.formInput} noValidate autoComplete="off">
-                            <div>
-                                <TextField 
-                                    type="number"
-                                    name="drawNumber"
-                                    id="drawNumber" 
-                                    label="Draw Number" 
-                                    value={drawNumber}
-                                    onChange={this.handleChange}/>
-                            </div>
-                            <div>
-                            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <KeyboardDatePicker
-                                disableToolbar
-                                variant="inline"
-                                format="dd/MM/yyyy"
-                                margin="normal"
-                                id="date-picker-inline"
-                                label="Date picker inline"
-                                value={drawDate}
-                                onChange={(value) =>  this.handleDateChange(value)}
-                                KeyboardButtonProps={{
-                                    'aria-label': 'change date',
-                                }}
-                            />
-                            </MuiPickersUtilsProvider>
-                            </div>
-                            <div className={classes.inputField}>
-                                <Typography variant="h5" component="h2" className={classes.numbers}>
-                                    {
-                                        ballsNumber?.map((ballNumber: IBallState, index: number) => {
-                                            if(index > 8)
-                                                return
-                                            return (<span 
-                                            key={ballNumber.value}
-                                            className={ballNumber.checked ? classes.ballChecked : classes.ball }
-                                            onClick={() =>  this.onClickBall(ballNumber)}
-                                            >{ballNumber.value}</span>)
-                                        })
-                                    }
-                                </Typography>
-                                <Typography variant="h5" component="h2" className={classes.numbers}>
-                                {
-                                        ballsNumber?.map((ballNumber: IBallState, index: number) => {
-                                            if(index < 9 || index > 17)
-                                                return
-                                            return (<span 
-                                            key={ballNumber.value}
-                                            className={ballNumber.checked ? classes.ballChecked : classes.ball }
-                                            onClick={() =>  this.onClickBall(ballNumber)}
-                                            >{ballNumber.value}</span>)
-                                        })
-                                    }
-                                </Typography>
-                                <Typography variant="h5" component="h2">
-                                {
-                                        ballsNumber?.map((ballNumber: IBallState, index: number) => {
-                                            if(index < 18)
-                                                return
-                                            return (<span 
-                                            key={ballNumber.value}
-                                            className={ballNumber.checked ? classes.ballChecked : classes.ball }
-                                            onClick={() =>  this.onClickBall(ballNumber)}
-                                            >{ballNumber.value}</span>)
-                                        })
-                                    }
-                                </Typography>
-                            </div>
+                <main className={classes.content}>
+                    <div className={classes.toolbar} />
+                    <Card className={classes.root}>
+                        <CardContent>
+                            <form className={classes.formInput} noValidate autoComplete="off">
+                                <div>
+                                    <TextField
+                                        type="number"
+                                        name="drawNumber"
+                                        id="drawNumber"
+                                        label="Draw Number"
+                                        value={drawNumber}
+                                        onChange={this.handleChange} />
+                                </div>
+                                <div>
+                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                                        <KeyboardDatePicker
+                                            disableToolbar
+                                            variant="inline"
+                                            format="dd/MM/yyyy"
+                                            margin="normal"
+                                            id="date-picker-inline"
+                                            label="Date picker inline"
+                                            value={drawDate}
+                                            onChange={(value) => this.handleDateChange(value)}
+                                            KeyboardButtonProps={{
+                                                'aria-label': 'change date',
+                                            }}
+                                        />
+                                    </MuiPickersUtilsProvider>
+                                </div>
+                                <div className={classes.inputField}>
+                                    <Typography variant="h5" component="h2" className={classes.numbers}>
+                                        {
+                                            ballsNumber?.map((ballNumber: IBallState, index: number) => {
+                                                if (index > 8)
+                                                    return
+                                                return (<span
+                                                    key={ballNumber.value}
+                                                    className={ballNumber.checked ? classes.ballChecked : classes.ball}
+                                                    onClick={() => this.onClickBall(ballNumber)}
+                                                >{ballNumber.value}</span>)
+                                            })
+                                        }
+                                    </Typography>
+                                    <Typography variant="h5" component="h2" className={classes.numbers}>
+                                        {
+                                            ballsNumber?.map((ballNumber: IBallState, index: number) => {
+                                                if (index < 9 || index > 17)
+                                                    return
+                                                return (<span
+                                                    key={ballNumber.value}
+                                                    className={ballNumber.checked ? classes.ballChecked : classes.ball}
+                                                    onClick={() => this.onClickBall(ballNumber)}
+                                                >{ballNumber.value}</span>)
+                                            })
+                                        }
+                                    </Typography>
+                                    <Typography variant="h5" component="h2">
+                                        {
+                                            ballsNumber?.map((ballNumber: IBallState, index: number) => {
+                                                if (index < 18)
+                                                    return
+                                                return (<span
+                                                    key={ballNumber.value}
+                                                    className={ballNumber.checked ? classes.ballChecked : classes.ball}
+                                                    onClick={() => this.onClickBall(ballNumber)}
+                                                >{ballNumber.value}</span>)
+                                            })
+                                        }
+                                    </Typography>
+                                </div>
 
-                            <div className={classes.inputField}>
-                            <Button 
-                                type="submit" 
-                                variant="contained" 
-                                color="primary"
-                                disabled={loading}
-                                onClick={this.handleSubmit}>
-                                Save
+                                <div className={classes.inputField}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                        disabled={loading}
+                                        onClick={this.handleSubmit}>
+                                        Save
                             </Button>
-                            </div>
-                            <div className={classes.inputField}>
-                            { (
-							<Typography variant="body2" className={classes.customError}>
-								{errors}
-							</Typography>
-						)}
-                            </div>
-                        </form>
+                                </div>
+                                <div className={classes.inputField}>
+                                    {(
+                                        <Typography variant="body2" className={classes.customError}>
+                                            {errors}
+                                        </Typography>
+                                    )}
+                                </div>
+                            </form>
 
-                    </CardContent>
-                </Card>
-            
-                {
+                        </CardContent>
+                    </Card>
+
+                    {
                         retrievedData?.map((game: IDraw) => {
                             return (
                                 <Card className={classes.root} key={game.drawId}>
@@ -471,7 +462,7 @@ class NewDraw extends Component<IProps, IState> {
                                                 </IconButton>
                                             </Grid>
                                         </Grid>
-    
+
                                         <Typography variant="h5" component="h2" className={classes.numbers}>
                                             {
                                                 game.numbersDrawn.map((ballNumber: string, index: number) => {
@@ -484,8 +475,9 @@ class NewDraw extends Component<IProps, IState> {
                             )
                         })
                     }
-            </main>
-        )}
+                </main>
+            )
+        }
     }
 }
 

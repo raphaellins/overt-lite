@@ -9,60 +9,61 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import axios from 'axios';
+import { loginSystem } from '../util/Proxy';
+
 import { Theme, createStyles } from '@material-ui/core';
 
 interface User {
-    email: String;
-    password: String;
+	email: String;
+	password: String;
 }
 
 interface Error {
-    password?: String;
-    email?: String;
-    general?: String;
+	password?: String;
+	email?: String;
+	general?: String;
 }
 
 interface IState {
 	email?: String;
 	password?: String;
-    errors?: Error;
-    loading?: boolean;
+	errors?: Error;
+	loading?: boolean;
 }
 
 interface IProps {
-    history: Array<String>;
-    classes: any;
+	history: Array<String>;
+	classes: any;
 }
 
 const styles = (theme: Theme) => (
-    createStyles({
-	paper: {
-		marginTop: theme.spacing(8),
-		display: 'flex',
-		flexDirection: 'column',
-		alignItems: 'center'
-	},
-	avatar: {
-		margin: theme.spacing(1),
-		backgroundColor: theme.palette.secondary.main
-	},
-	form: {
-		width: '100%',
-		marginTop: theme.spacing(1)
-	},
-	submit: {
-		margin: theme.spacing(3, 0, 2)
-	},
-	customError: {
-		color: 'red',
-		fontSize: '0.8rem',
-		marginTop: 10
-	},
-	progess: {
-		position: 'absolute'
-	}
-}));
+	createStyles({
+		paper: {
+			marginTop: theme.spacing(8),
+			display: 'flex',
+			flexDirection: 'column',
+			alignItems: 'center'
+		},
+		avatar: {
+			margin: theme.spacing(1),
+			backgroundColor: theme.palette.secondary.main
+		},
+		form: {
+			width: '100%',
+			marginTop: theme.spacing(1)
+		},
+		submit: {
+			margin: theme.spacing(3, 0, 2)
+		},
+		customError: {
+			color: 'red',
+			fontSize: '0.8rem',
+			marginTop: 10
+		},
+		progess: {
+			position: 'absolute'
+		}
+	}));
 
 class login extends Component<IProps, IState> {
 	constructor(props: any) {
@@ -70,7 +71,7 @@ class login extends Component<IProps, IState> {
 
 		this.state = {
 			email: '',
-            password: '',
+			password: '',
 			errors: {},
 			loading: false
 		};
@@ -90,33 +91,33 @@ class login extends Component<IProps, IState> {
 		});
 	};
 
-	handleSubmit = (event: { preventDefault: () => void; }) => {
+	handleSubmit = async (event: { preventDefault: () => void; }) => {
 		event.preventDefault();
 		this.setState({ loading: true });
 		const userData: User = {
 			email: this.state.email ? this.state.email : '',
 			password: this.state.password ? this.state.password : ''
 		};
-		axios
-			.post('https://us-central1-overtlite.cloudfunctions.net/api/login', userData)
-			.then((response) => {
-				localStorage.setItem('AuthToken', `Bearer ${response.data.token}`);
-				this.setState({ 
-					loading: false,
-				});		
-				this.props.history.push('/');
-			})
-			.catch((error) => {		
-				
-				if(error.response != null){
-					this.setState({
-						errors: error.response.data,
-						loading: false
-					});
-				}
-				
-				console.log(error);
+
+		const response = await loginSystem(userData, (error: any) => {
+
+			if (error.response != null) {
+				this.setState({
+					errors: error.response.data,
+					loading: false
+				});
+			}
+
+			console.log(error);
+		});
+
+		if (response != null) {
+			localStorage.setItem('AuthToken', `Bearer ${response.data.token}`);
+			this.setState({
+				loading: false,
 			});
+			this.props.history.push('/');
+		}
 	};
 
 	render() {

@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
-
 import withStyles from '@material-ui/core/styles/withStyles';
 import { Theme, createStyles, CircularProgress } from '@material-ui/core';
-import axios from 'axios';
 import * as _ from 'lodash';
 import GameStatus from '../elements/GameStatus';
 import { listAllGamesMatched, deleteGame } from '../util/Proxy';
@@ -119,9 +117,6 @@ class Lottery extends Component<IProps, IState> {
     }
 
     retrieveData = async () => {
-        const authToken = localStorage.getItem('AuthToken');
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
-
         let gamesQueued: Array<IGame> = [];
         let gamesFinished: Array<IGame> = [];
 
