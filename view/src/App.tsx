@@ -5,14 +5,9 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import withStyles from '@material-ui/core/styles/withStyles';
-import AccountBoxIcon from '@material-ui/icons/AccountBox';
-import NotesIcon from '@material-ui/icons/Notes';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { authMiddleWare } from './util/auth'
 import { Theme, createStyles, Button } from '@material-ui/core';
@@ -172,52 +167,24 @@ class App extends Component<PropsType, IState, RouteProps> {
             }}
           >
             <div className={classes.toolbar} />
-            <Divider />
-            <p>
-              {' '}
-              {this.state.firstName} {this.state.lastName}
-            </p>
-            <Divider />
             <List>
               <ListItem button key="Lottery" onClick={() => this.loadPage("/")}>
-                <ListItemIcon>
-                  {' '}
-                  <NotesIcon />{' '}
-                </ListItemIcon>
                 <ListItemText primary="Lottery" />
               </ListItem>
               <ListItem button key="NewDraw" onClick={() => this.loadPage("/draw")}>
-                <ListItemIcon>
-                  {' '}
-                  <NotesIcon />{' '}
-                </ListItemIcon>
                 <ListItemText primary="New Draw" />
               </ListItem>
               <ListItem button key="NewGame" onClick={() => this.loadPage("/game")}>
-                <ListItemIcon>
-                  {' '}
-                  <NotesIcon />{' '}
-                </ListItemIcon>
                 <ListItemText primary="New Game" />
               </ListItem>
               <ListItem button key="Account" onClick={() => this.loadPage("/account")}>
-                <ListItemIcon>
-                  {' '}
-                  <AccountBoxIcon />{' '}
-                </ListItemIcon>
                 <ListItemText primary="Account" />
               </ListItem>
-
               <ListItem button key="Logout" onClick={this.logoutHandler}>
-                <ListItemIcon>
-                  {' '}
-                  <ExitToAppIcon />{' '}
-                </ListItemIcon>
                 <ListItemText primary="Logout" />
               </ListItem>
             </List>
           </Drawer>
-
           <div>
             {this.props.children}
           </div>
