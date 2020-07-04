@@ -45,7 +45,6 @@ export const listAllGames = async () => {
     return await axios.get(`${urlBase()}/games-all`);
 }
 
-export const GetUser = async ( onError: Function) => {
-    return await axios.get(`${urlBase()}/user`)
-    .catch(error =>  onError(error));
+export const GetUser = async () => {
+    return await axios.get(`${urlBase()}/user`);
 }

@@ -1,32 +1,21 @@
 import React, { Component } from 'react'
 
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, createStyles, TextField, Button, Grid, IconButton, CircularProgress, Modal } from '@material-ui/core';
+import { Theme, createStyles, TextField, Button, IconButton, CircularProgress, Modal } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import * as _ from 'lodash';
-import DeleteIcon from '@material-ui/icons/Delete';
-import RefreshIcon from '@material-ui/icons/Refresh';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveIcon from '@material-ui/icons/Save';
 import { newGame, listAllGames, deleteGame } from '../util/Proxy';
+import GameStatus from '../elements/GameStatus';
 
 const styles = ((theme: Theme) => (
     createStyles({
-        content: {
-            flexGrow: 1,
-            padding: theme.spacing(3),
-        },
-        toolbar: theme.mixins.toolbar,
         root: {
-            minWidth: 340,
-            marginBottom: 10
-        },
-        bullet: {
-            display: 'inline-block',
-            margin: '0 2px',
-            transform: 'scale(0.8)',
+            marginBottom: 10,
+            marginTop: 10,
         },
         title: {
             fontSize: 18,
@@ -88,10 +77,17 @@ const styles = ((theme: Theme) => (
             boxShadow: theme.shadows[5],
             padding: theme.spacing(2, 4, 3),
         },
+        toolbar: theme.mixins.toolbar,
         modalStyle: {
             top: '50%',
             left: '50%',
             transform: "translate(-50%, -50%)"
+        },
+        inputsGameNumber:{
+            display: 'flex',
+            flexDirection: 'column',
+            marginBottom: 10,
+            maxWidth: 200
         }
     }))
 );
@@ -246,13 +242,19 @@ class Game extends Component<IProps, IState> {
 
     handleSubmit = async (event: any) => {
         event.preventDefault();
-        this.setState({ loading: true });
 
         const { initialGameNumber, finalGameNumber, ballsNumber } = this.state;
 
         const ballsSelected = ballsNumber?.filter((ball: IBallState) => ball.checked);
 
-        console.log(ballsSelected);
+        const initialNumber = Number(initialGameNumber);
+        const finalNumber = Number(finalGameNumber);
+
+        if (initialNumber == NaN || initialNumber == 0
+            || finalNumber == NaN || finalNumber == 0) {
+            this.setState({ errors: ['Initial and final game number is required'], loading: false })
+            return;
+        }
 
         var newGameRequest = {
             initialGameNumber,
@@ -261,6 +263,8 @@ class Game extends Component<IProps, IState> {
         }
 
         try {
+            this.setState({ loading: true });
+
             await newGame(newGameRequest);
 
             this.setState(this.initiateState());
@@ -303,12 +307,33 @@ class Game extends Component<IProps, IState> {
 
     handleChange = (event: any) => {
         this.setState({
-            [event.target.name]: event.target.value
+            [event.target.name]: event.target.value,
+            errors: []
         });
     };
 
     componentWillMount = async () => {
-        this.retrieveData();
+        console.log('Buscando dados');
+        this.setState({ loading: true });
+        await this.retrieveData();
+
+        const { retrievedData } = this.state;
+
+        retrievedData?.forEach((game: IGame, index: number) => {
+            const gameNumber = game.gameNumber ?? 0;
+            if (gameNumber > 1980) {
+                return
+            }
+
+            setTimeout(async () => {
+                console.log('deletando', game.gameId)
+                await deleteGame(game.gameId)
+                console.log('done', game.gameId)
+            }, 10000 * index)
+        })
+
+
+        this.setState({ loading: false });
     }
 
     retrieveData = async () => {
@@ -396,12 +421,12 @@ class Game extends Component<IProps, IState> {
             );
         } else {
             return (
-                <main className={classes.content}>
+                <main >
                     <div className={classes.toolbar} />
                     <Card className={classes.root}>
                         <CardContent>
                             <form className={classes.formInput} noValidate autoComplete="off">
-                                <div>
+                                <div className={classes.inputsGameNumber}>
                                     <TextField
                                         type="number"
                                         name="initialGameNumber"
@@ -409,8 +434,6 @@ class Game extends Component<IProps, IState> {
                                         label="Initial Game Number"
                                         value={initialGameNumber}
                                         onChange={this.handleChange} />
-                                </div>
-                                <div>
                                     <TextField
                                         type="number"
                                         name="finalGameNumber"
@@ -485,34 +508,7 @@ class Game extends Component<IProps, IState> {
                     {
                         retrievedData?.map((game: IGame) => {
                             return (
-                                <Card className={classes.root} key={game.gameId}>
-                                    <CardContent>
-                                        <Grid container spacing={3} className={classes.cardHeader}>
-                                            <Grid item xs>
-                                                <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                                    Game: {game.gameNumber}
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs>
-                                                <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.handleDelete(game)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                                <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.handleDuplicate(game)}>
-                                                    <RefreshIcon />
-                                                </IconButton>
-                                            </Grid>
-                                        </Grid>
-
-                                        <Typography variant="h5" component="h2" className={classes.numbers}>
-                                            {
-                                                game.numbersPlayed.map((ballNumber: string, index: number) => {
-                                                    return (<span className={classes.ball} key={game.gameId + ballNumber}>{ballNumber}</span>)
-                                                })
-                                            }
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-
+                                <GameStatus key={game.gameId} game={game} handleDelete={this.handleDelete} plusAction={this.handleDuplicate}></GameStatus>
                             )
                         })
                     }

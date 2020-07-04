@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import 'date-fns';
 import DateFnsUtils from '@date-io/date-fns';
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, createStyles, TextField, Button, CircularProgress, Grid, IconButton } from '@material-ui/core';
+import { Theme, createStyles, TextField, Button, CircularProgress } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -10,7 +10,7 @@ import {
     MuiPickersUtilsProvider,
     KeyboardDatePicker,
 } from '@material-ui/pickers';
-import DeleteIcon from '@material-ui/icons/Delete';
+import GameStatus from '../elements/GameStatus';
 import * as _ from 'lodash';
 import { newDraw, listAllDraws, deleteDraw } from '../util/Proxy';
 
@@ -22,7 +22,7 @@ const styles = ((theme: Theme) => (
         },
         toolbar: theme.mixins.toolbar,
         root: {
-            minWidth: 340,
+            maxWidth: 350,
             marginBottom: 10
         },
         bullet: {
@@ -82,6 +82,12 @@ const styles = ((theme: Theme) => (
             left: '50%',
             top: '35%'
         },
+        inputsGameNumber:{
+            display: 'flex',
+            flexDirection: 'column',
+            marginBottom: 10,
+            maxWidth: 200
+        }
     }))
 );
 
@@ -355,7 +361,7 @@ class NewDraw extends Component<IProps, IState> {
                     <Card className={classes.root}>
                         <CardContent>
                             <form className={classes.formInput} noValidate autoComplete="off">
-                                <div>
+                                <div className={classes.inputsGameNumber}>
                                     <TextField
                                         type="number"
                                         name="drawNumber"
@@ -448,30 +454,7 @@ class NewDraw extends Component<IProps, IState> {
                     {
                         retrievedData?.map((game: IDraw) => {
                             return (
-                                <Card className={classes.root} key={game.drawId}>
-                                    <CardContent>
-                                        <Grid container spacing={3} className={classes.cardHeader}>
-                                            <Grid item xs>
-                                                <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                                    Game: {game.drawNumber}
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs>
-                                                <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.handleDelete(game)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </Grid>
-                                        </Grid>
-
-                                        <Typography variant="h5" component="h2" className={classes.numbers}>
-                                            {
-                                                game.numbersDrawn.map((ballNumber: string, index: number) => {
-                                                    return (<span className={classes.ball} key={game.drawId + ballNumber}>{ballNumber}</span>)
-                                                })
-                                            }
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
+                                <GameStatus key={game.drawId} game={{gameId: game.drawId, gameNumber: game.drawNumber, numbersPlayed: game.numbersDrawn}} handleDelete={this.handleDelete}></GameStatus>
                             )
                         })
                     }

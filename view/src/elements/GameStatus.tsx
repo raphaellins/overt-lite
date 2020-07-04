@@ -7,22 +7,13 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Grid from '@material-ui/core/Grid';
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 const styles = ((theme: Theme) => (
     createStyles({
-        content: {
-            flexGrow: 1,
-            padding: theme.spacing(3),
-        },
         toolbar: theme.mixins.toolbar,
         root: {
-            minWidth: 500,
             marginBottom: 10
-        },
-        bullet: {
-            display: 'inline-block',
-            margin: '0 2px',
-            transform: 'scale(0.8)',
         },
         title: {
             fontSize: 18,
@@ -60,14 +51,9 @@ const styles = ((theme: Theme) => (
         cardHeader: {
             marginBottom: 10
         },
-        uiProgess: {
-            position: 'fixed',
-            Index: '1000',
-            height: '31px',
-            width: '31px',
-            left: '50%',
-            top: '35%'
-        },
+        buttonAction:{
+
+        }
     }))
 );
 
@@ -76,6 +62,7 @@ interface IProps {
     classes?: any;
     game: IGame;
     handleDelete: Function;
+    plusAction?: Function;
 }
 
 interface IState {
@@ -89,13 +76,13 @@ interface IState {
 }
 
 interface IGame {
-    gameNumber: string,
+    gameNumber?: string,
     numbersPlayed: string[],
-    numbersDrawn: string[],
-    numbersState: IBallState[],
-    gameId: string,
-    countMatched: number,
-    ballsMatched: string[]
+    numbersDrawn?: string[],
+    numbersState?: IBallState[],
+    gameId?: string,
+    countMatched?: number,
+    ballsMatched?: string[]
 }
 
 interface IBallState {
@@ -105,10 +92,8 @@ interface IBallState {
 
 class GameStatus extends Component<IProps, IState> {
 
-
-
     render() {
-        const { classes, game, handleDelete } = this.props;
+        const { classes, game, handleDelete, plusAction } = this.props;
         return (
 
             <Card className={classes.root} key={game.gameId}>
@@ -132,10 +117,19 @@ class GameStatus extends Component<IProps, IState> {
                                         
                                             
                                         </Grid>
-                                        <Grid item xs>
+                                        <Grid className={classes.buttonAction}>
                                             <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => handleDelete(game)}>
                                                 <DeleteIcon />
                                             </IconButton>
+                                            {
+                                                plusAction ? 
+                                                    (
+                                                        <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => plusAction(game)}>
+                                                            <RefreshIcon />
+                                                            </IconButton>
+                                                    )
+                                                 : ''
+                                            }
                                         </Grid>
                                     </Grid>
 

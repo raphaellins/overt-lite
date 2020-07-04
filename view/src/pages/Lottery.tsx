@@ -7,54 +7,12 @@ import { listAllGamesMatched, deleteGame } from '../util/Proxy';
 
 const styles = ((theme: Theme) => (
     createStyles({
-        content: {
-            flexGrow: 1,
-            padding: theme.spacing(3),
-        },
-        toolbar: theme.mixins.toolbar,
         root: {
-            minWidth: 500,
-            marginBottom: 10
-        },
-        bullet: {
-            display: 'inline-block',
-            margin: '0 2px',
-            transform: 'scale(0.8)',
-        },
-        title: {
-            fontSize: 18,
+            marginTop: 10
         },
         matchedTitle: {
             fontSize: 18,
             color: 'green'
-        },
-        pos: {
-            marginBottom: 12,
-        },
-        ball: {
-            backgroundColor: 'orange',
-            borderRadius: 50,
-            padding: 2,
-            marginRight: 2,
-            color: 'black',
-            fontWeight: 'bold'
-        },
-        ballChecked: {
-            backgroundColor: 'green',
-            borderRadius: 50,
-            padding: 2,
-            marginRight: 2,
-            color: 'white',
-            fontWeight: 'bold',
-        },
-        ballMatched: {
-            backgroundColor: 'green',
-        },
-        numbers: {
-            marginBottom: 10
-        },
-        cardHeader: {
-            marginBottom: 10
         },
         uiProgess: {
             position: 'fixed',
@@ -64,11 +22,12 @@ const styles = ((theme: Theme) => (
             left: '50%',
             top: '35%'
         },
+        toolbar: theme.mixins.toolbar,
         line: {
             marginBottom: 50,
             marginTop: 50,
             color: 'gray'
-        }
+        },
     }))
 );
 
@@ -124,7 +83,7 @@ class Lottery extends Component<IProps, IState> {
 
             const { data } = await listAllGamesMatched();
 
-             gamesFinished  = _.chain(data)
+            gamesFinished = _.chain(data)
                 .filter((game: IGame) => game.numbersDrawn.length > 0)
                 .sortBy('gameNumber')
                 .reverse()
@@ -148,7 +107,7 @@ class Lottery extends Component<IProps, IState> {
                 }
             });
 
-             gamesQueued = _.chain(data)
+            gamesQueued = _.chain(data)
                 .filter((game: IGame) => game.numbersDrawn.length === 0)
                 .sortBy('gameNumber')
                 .value();
@@ -186,12 +145,12 @@ class Lottery extends Component<IProps, IState> {
                 </div>
             );
         } else {
-            return (<main className={classes.content}>
+            return (<main className={classes.root}>
                 <div className={classes.toolbar} />
                 {
                     gameQueued?.map((game: IGame) => {
                         return (
-                            <GameStatus game={game} handleDelete={this.handleDelete}></GameStatus>
+                            <GameStatus key={game.gameId} game={game} handleDelete={this.handleDelete}></GameStatus>
                         )
                     })
                 }
@@ -199,7 +158,7 @@ class Lottery extends Component<IProps, IState> {
                 {
                     gameFinished?.map((game: IGame) => {
                         return (
-                            <GameStatus game={game} handleDelete={this.handleDelete}></GameStatus>
+                            <GameStatus key={game.gameId} game={game} handleDelete={this.handleDelete}></GameStatus>
                         )
                     })
                 }

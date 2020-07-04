@@ -14,41 +14,28 @@ import { Theme, createStyles, Button } from '@material-ui/core';
 import { withRouter, RouteProps, RouteComponentProps } from 'react-router-dom';
 import { GetUser } from './util/Proxy';
 
-const drawerWidth = 240;
-
 const styles = (theme: Theme) => (
   createStyles({
-    root: {
-      display: 'flex'
-    },
     appBar: {
       zIndex: theme.zIndex.drawer + 1
     },
     drawer: {
-      width: drawerWidth,
+      width: 240,
       flexShrink: 0
     },
     drawerPaper: {
-      width: drawerWidth
-    },
-    content: {
-      flexGrow: 1,
-      padding: theme.spacing(3)
-    },
-    avatar: {
-      height: 110,
-      width: 100,
-      flexShrink: 0,
-      flexGrow: 0,
-      marginTop: 20
+      width: 240
     },
     uiProgess: {
-      position: 'fixed',
       Index: '1000',
       height: '31px',
       width: '31px',
-      left: '50%',
-      top: '35%'
+    },
+    container: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column'
     },
     toolbar: theme.mixins.toolbar
   }));
@@ -100,25 +87,28 @@ class App extends Component<PropsType, IState, RouteProps> {
   }
 
   componentWillMount = async () => {
-      authMiddleWare(this.props.history);
+    authMiddleWare(this.props.history);
 
-      const response = await GetUser((error: any) => {
-        if (error.response.status === 403) {
-          this.props.history?.push('/login');
-        }
-        console.log(error);
-        this.setState({ errorMsg: 'Error in retrieving the data' });
-      });
-  
-      this.setState({
-        firstName: response.data.userCredentials.firstName,
-        lastName: response.data.userCredentials.lastName,
-        email: response.data.userCredentials.email,
-        phoneNumber: response.data.userCredentials.phoneNumber,
-        country: response.data.userCredentials.country,
-        username: response.data.userCredentials.username,
-        uiLoading: false
-      });
+    try {
+      const response = await GetUser();
+
+      if (response && response.data) {
+        this.setState({
+          firstName: response.data.userCredentials.firstName,
+          lastName: response.data.userCredentials.lastName,
+          email: response.data.userCredentials.email,
+          phoneNumber: response.data.userCredentials.phoneNumber,
+          country: response.data.userCredentials.country,
+          username: response.data.userCredentials.username,
+          uiLoading: false
+        });
+      }
+
+    } catch (error) {
+      localStorage.removeItem('AuthToken');
+      this.props.history?.push('/login');
+      this.setState({ errorMsg: 'Error in retrieving the data', uiLoading: false });
+    }
   };
 
   toggleDrawer = (anchor: Anchor, open: boolean) => (
@@ -141,7 +131,7 @@ class App extends Component<PropsType, IState, RouteProps> {
     const { left } = this.state;
     if (this.state.uiLoading === true) {
       return (
-        <div className={classes.root}>
+        <div className={classes.container}>
           {this.state.uiLoading && <CircularProgress size={150} className={classes.uiProgess} />}
         </div>
       );
@@ -185,7 +175,7 @@ class App extends Component<PropsType, IState, RouteProps> {
               </ListItem>
             </List>
           </Drawer>
-          <div>
+          <div className={classes.container}>
             {this.props.children}
           </div>
         </div>
