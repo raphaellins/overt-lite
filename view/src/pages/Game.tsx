@@ -452,6 +452,7 @@ class Game extends Component<IProps, IState> {
                                         name="gameDescription"
                                         id="gameDescription"
                                         label="Game Description"
+                                        inputProps={{maxLength: 12}}
                                         value={gameDescription}
                                         onChange={this.handleChange} />
                                 </div>
