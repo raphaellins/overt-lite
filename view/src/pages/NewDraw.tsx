@@ -22,7 +22,6 @@ const styles = ((theme: Theme) => (
         },
         toolbar: theme.mixins.toolbar,
         root: {
-            maxWidth: 350,
             marginBottom: 10
         },
         bullet: {

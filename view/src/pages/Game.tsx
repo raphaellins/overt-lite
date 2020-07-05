@@ -106,7 +106,8 @@ interface IState {
     retrievedData?: IGame[],
     modalOpened?: boolean,
     gameNumberDuplicate?: string,
-    gameToDuplicate?: IGame
+    gameToDuplicate?: IGame,
+    gameDescription?: string
 }
 
 interface IBallState {
@@ -118,6 +119,7 @@ interface IGame {
     gameNumber?: string,
     numbersPlayed: string[],
     gameId?: string,
+    gameDescription?: string
 }
 
 class Game extends Component<IProps, IState> {
@@ -133,6 +135,7 @@ class Game extends Component<IProps, IState> {
             initialGameNumber: '',
             finalGameNumber: '',
             gameNumberDuplicate: '',
+            gameDescription: '',
             gameToDuplicate: undefined,
             ballsNumber: [
                 {
@@ -243,15 +246,15 @@ class Game extends Component<IProps, IState> {
     handleSubmit = async (event: any) => {
         event.preventDefault();
 
-        const { initialGameNumber, finalGameNumber, ballsNumber } = this.state;
+        const { initialGameNumber, finalGameNumber, ballsNumber, gameDescription } = this.state;
 
         const ballsSelected = ballsNumber?.filter((ball: IBallState) => ball.checked);
 
         const initialNumber = Number(initialGameNumber);
         const finalNumber = Number(finalGameNumber);
 
-        if (initialNumber == NaN || initialNumber == 0
-            || finalNumber == NaN || finalNumber == 0) {
+        if (isNaN(initialNumber) || initialNumber === 0
+            || isNaN(finalNumber) || finalNumber === 0) {
             this.setState({ errors: ['Initial and final game number is required'], loading: false })
             return;
         }
@@ -259,6 +262,7 @@ class Game extends Component<IProps, IState> {
         var newGameRequest = {
             initialGameNumber,
             finalGameNumber,
+            gameDescription,
             numbersPlayed: ballsSelected?.map((ball: IBallState) => ball.value)
         }
 
@@ -266,6 +270,8 @@ class Game extends Component<IProps, IState> {
             this.setState({ loading: true });
 
             await newGame(newGameRequest);
+
+            await this.retrieveData();
 
             this.setState(this.initiateState());
         } catch (error) {
@@ -390,6 +396,7 @@ class Game extends Component<IProps, IState> {
             var newGameRequest = {
                 initialGameNumber: gameNumberDuplicate,
                 finalGameNumber: gameNumberDuplicate,
+                gameDescription: gameToDuplicate.gameDescription,
                 numbersPlayed: gameToDuplicate.numbersPlayed
             }
 
@@ -411,7 +418,7 @@ class Game extends Component<IProps, IState> {
 
     render() {
         const { classes } = this.props;
-        const { gameNumberDuplicate, loading, initialGameNumber, finalGameNumber, ballsNumber, errors, retrievedData, modalOpened } = this.state;
+        const { gameNumberDuplicate, loading, initialGameNumber, finalGameNumber, ballsNumber, errors, retrievedData, modalOpened, gameDescription } = this.state;
 
         if (this.state.loading === true) {
             return (
@@ -440,6 +447,12 @@ class Game extends Component<IProps, IState> {
                                         id="finalGameNumber"
                                         label="Final Game Number"
                                         value={finalGameNumber}
+                                        onChange={this.handleChange} />
+                                        <TextField
+                                        name="gameDescription"
+                                        id="gameDescription"
+                                        label="Game Description"
+                                        value={gameDescription}
                                         onChange={this.handleChange} />
                                 </div>
                                 <div className={classes.inputField}>

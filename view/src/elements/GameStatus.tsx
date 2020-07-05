@@ -51,7 +51,7 @@ const styles = ((theme: Theme) => (
         cardHeader: {
             marginBottom: 10
         },
-        buttonAction:{
+        buttonAction: {
 
         }
     }))
@@ -82,7 +82,8 @@ interface IGame {
     numbersState?: IBallState[],
     gameId?: string,
     countMatched?: number,
-    ballsMatched?: string[]
+    ballsMatched?: string[],
+    gameDescription?: string,
 }
 
 interface IBallState {
@@ -97,61 +98,71 @@ class GameStatus extends Component<IProps, IState> {
         return (
 
             <Card className={classes.root} key={game.gameId}>
-                                <CardContent>
-                                    <Grid container spacing={3} className={classes.cardHeader}>
-                                        <Grid item xs>
-                                            <Typography className={classes.title} color="textSecondary" gutterBottom>
-                                                Game: {game.gameNumber}
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item xs>
-                                            {
-                                                game.countMatched ? 
-                                                     (
-                                                        <Typography className={game.countMatched >= 11 ? classes.matchedTitle : classes.title} color="textSecondary" gutterBottom>
-                                                            Matched: {game.countMatched}
-                                                        </Typography>
-                                                    )
-                                                : ''
-                                            }
-                                        
-                                            
-                                        </Grid>
-                                        <Grid className={classes.buttonAction}>
-                                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => handleDelete(game)}>
-                                                <DeleteIcon />
-                                            </IconButton>
-                                            {
-                                                plusAction ? 
-                                                    (
-                                                        <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => plusAction(game)}>
-                                                            <RefreshIcon />
-                                                            </IconButton>
-                                                    )
-                                                 : ''
-                                            }
-                                        </Grid>
-                                    </Grid>
+                <CardContent>
+                    <Grid container spacing={4} className={classes.cardHeader}>
+                        <Grid item xs>
+                            <Typography className={classes.title} color="textSecondary" gutterBottom>
+                                Game: {game.gameNumber}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs>
+                            {
+                                game.gameDescription ?
+                                    (
+                                        <Typography className={classes.title} color="textSecondary" gutterBottom>
+                                            {game.gameDescription}
+                                        </Typography>
+                                    ) : ''
+                            }
+                        </Grid>
+                        <Grid item xs>
+                            {
+                                game.countMatched ?
+                                    (
+                                        <Typography className={game.countMatched >= 11 ? classes.matchedTitle : classes.title} color="textSecondary" gutterBottom>
+                                            Matched: {game.countMatched}
+                                        </Typography>
+                                    )
+                                    : ''
+                            }
 
-                                    <Typography variant="h5" component="h2" className={classes.numbers}>
 
-                                        {
-                                            game.numbersPlayed.map((ballNumber: string, index: number) => {
-                                                return (<span className={classes.ball} key={game.gameId + ballNumber}>{ballNumber}</span>)
-                                            })
-                                        }
-                                    </Typography>
+                        </Grid>
+                        <Grid className={classes.buttonAction}>
+                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => handleDelete(game)}>
+                                <DeleteIcon />
+                            </IconButton>
+                            {
+                                plusAction ?
+                                    (
+                                        <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => plusAction(game)}>
+                                            <RefreshIcon />
+                                        </IconButton>
+                                    )
+                                    : ''
+                            }
+                        </Grid>
+                    </Grid>
 
-                                    <Typography variant="h5" component="h2" className={classes.numbers}>
+                    <Typography variant="h5" component="h2" className={classes.numbers}>
 
-                                        {
-                                            game.numbersState?.map((ballNumber: IBallState, index: number) => {
-                                                return (<span className={ballNumber.checked ? classes.ballChecked : classes.ball} key={game.gameId + ballNumber.value}>{ballNumber.value}</span>)
-                                            })
-                                        }
-                                    </Typography>
-                                </CardContent>
-                            </Card>
+                        {
+                            game.numbersPlayed.map((ballNumber: string, index: number) => {
+                                return (<span className={classes.ball} key={game.gameId + ballNumber}>{ballNumber}</span>)
+                            })
+                        }
+                    </Typography>
+
+                    <Typography variant="h5" component="h2" className={classes.numbers}>
+
+                        {
+                            game.numbersState?.map((ballNumber: IBallState, index: number) => {
+                                return (<span className={ballNumber.checked ? classes.ballChecked : classes.ball} key={game.gameId + ballNumber.value}>{ballNumber.value}</span>)
+                            })
+                        }
+                    </Typography>
+                </CardContent>
+            </Card>
         );
     }
 

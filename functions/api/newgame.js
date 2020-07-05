@@ -10,7 +10,7 @@ exports.postNewGame = async (request, response) => {
         return response.status(400).json({ initialGameNumber: 'Must not be empty' });
     }
 
-    const { initialGameNumber, numbersPlayed } = request.body;
+    const { initialGameNumber, numbersPlayed, gameDescription } = request.body;
     let finalGameNumber = request.body.finalGameNumber;
 
     if (request.body.numbersPlayed == null) {
@@ -35,6 +35,7 @@ exports.postNewGame = async (request, response) => {
     for (; gameNumber <= finalGameNumber; gameNumber++) {
         const newGame = {
             gameNumber,
+            gameDescription,
             numbersPlayed
         }
 
@@ -73,7 +74,8 @@ exports.listGames = async (request, response) => {
                 numbersPlayed: gamePlayed.numbersPlayed,
                 ballsMatched: gamePlayed.ballsMatched,
                 countMatched: gamePlayed.countMatched,
-                numbersDrawn: drawGame.numbersDrawn
+                numbersDrawn: drawGame.numbersDrawn,
+                gameDescription: gamePlayed.gameDescription
             };
 
             games.push(game);
@@ -119,6 +121,7 @@ exports.getAllGames = async (request, response) => {
                 gameId: gameId,
                 gameNumber: gamePlayed.gameNumber,
                 numbersPlayed: gamePlayed.numbersPlayed,
+                gameDescription: gamePlayed.gameDescription
             };
 
             games.push(game);
