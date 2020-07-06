@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Grid from '@material-ui/core/Grid';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import { IGameStatusProps, IGameStatusState } from '../interfaces/GameStatusState';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -91,7 +92,7 @@ interface IBallState {
     value: string
 }
 
-class GameStatus extends Component<IProps, IState> {
+class GameStatus extends Component<IGameStatusProps, IGameStatusState> {
 
     render() {
         const { classes, game, handleDelete, plusAction } = this.props;

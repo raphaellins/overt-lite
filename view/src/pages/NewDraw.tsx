@@ -13,6 +13,8 @@ import {
 import GameStatus from '../elements/GameStatus';
 import * as _ from 'lodash';
 import { newDraw, listAllDraws, deleteDraw } from '../util/Proxy';
+import { IDrawState, IDrawProps, IDraw } from '../interfaces/DrawState';
+import { IBallState } from '../interfaces/GameStatusState';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -81,7 +83,7 @@ const styles = ((theme: Theme) => (
             left: '50%',
             top: '35%'
         },
-        inputsGameNumber:{
+        inputsGameNumber: {
             display: 'flex',
             flexDirection: 'column',
             marginBottom: 10,
@@ -90,34 +92,8 @@ const styles = ((theme: Theme) => (
     }))
 );
 
-interface IProps {
-    history?: Array<String>;
-    classes?: any;
-}
-
-interface IState {
-    loading?: boolean;
-    ballsNumber?: Array<IBallState>,
-    drawNumber?: string,
-    drawDate?: Date | null,
-    errors?: Array<string>,
-    retrievedData?: Array<IDraw>
-}
-
-interface IBallState {
-    checked: boolean,
-    value: string
-}
-
-interface IDraw {
-    drawNumber: string,
-    numbersDrawn: string[],
-    drawId: string,
-}
-
-
-class NewDraw extends Component<IProps, IState> {
-    constructor(props: IProps) {
+class NewDraw extends Component<IDrawProps, IDrawState> {
+    constructor(props: IDrawProps) {
         super(props);
 
         this.state = this.initiateState();
@@ -453,7 +429,7 @@ class NewDraw extends Component<IProps, IState> {
                     {
                         retrievedData?.map((game: IDraw) => {
                             return (
-                                <GameStatus key={game.drawId} game={{gameId: game.drawId, gameNumber: game.drawNumber, numbersPlayed: game.numbersDrawn}} handleDelete={this.handleDelete}></GameStatus>
+                                <GameStatus key={game.drawId} game={{ gameId: game.drawId, gameNumber: game.drawNumber, numbersPlayed: game.numbersDrawn }} handleDelete={this.handleDelete}></GameStatus>
                             )
                         })
                     }

@@ -8,33 +8,9 @@ import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
-
 import { loginSystem } from '../util/Proxy';
-
 import { Theme, createStyles } from '@material-ui/core';
-
-interface User {
-	email: String;
-	password: String;
-}
-
-interface Error {
-	password?: String;
-	email?: String;
-	general?: String;
-}
-
-interface IState {
-	email?: String;
-	password?: String;
-	errors?: Error;
-	loading?: boolean;
-}
-
-interface IProps {
-	history: Array<String>;
-	classes: any;
-}
+import { IUserProps, IUserState, User } from '../interfaces/UserState';
 
 const styles = (theme: Theme) => (
 	createStyles({
@@ -65,8 +41,8 @@ const styles = (theme: Theme) => (
 		}
 	}));
 
-class login extends Component<IProps, IState> {
-	constructor(props: any) {
+class login extends Component<IUserProps, IUserState> {
+	constructor(props: IUserProps) {
 		super(props);
 
 		this.state = {

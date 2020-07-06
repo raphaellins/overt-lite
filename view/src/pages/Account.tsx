@@ -8,6 +8,7 @@ import { Card, CardActions, CardContent, Divider, Grid, TextField, Theme, create
 import clsx from 'clsx';
 import { authMiddleWare } from '../util/auth';
 import { GetUser } from '../util/Proxy';
+import { IAccountState, IAccountProps } from '../interfaces/AccountState';
 
 const styles = (theme: Theme) => (
 	createStyles({
@@ -58,31 +59,8 @@ const styles = (theme: Theme) => (
 		}
 	}));
 
-interface IProps {
-	history?: Array<string>;
-	classes?: any;
-}
-
-interface IState {
-	firstName?: String,
-	lastName?: String,
-	profilePicture?: String,
-	uiLoading?: boolean,
-	imageLoading?: boolean,
-	render?: boolean,
-	email?: String,
-	phoneNumber?: String,
-	country?: String,
-	username?: String,
-	errorMsg?: String,
-	buttonLoading?: boolean,
-	imageError?: String,
-	image?: string,
-	content?: string
-}
-
-class account extends Component<IProps, IState> {
-	constructor(props: IProps) {
+class account extends Component<IAccountProps, IAccountState> {
+	constructor(props: IAccountProps) {
 		super(props);
 
 		this.state = {

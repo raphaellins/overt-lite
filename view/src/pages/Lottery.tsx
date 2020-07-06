@@ -4,6 +4,8 @@ import { Theme, createStyles, CircularProgress } from '@material-ui/core';
 import * as _ from 'lodash';
 import GameStatus from '../elements/GameStatus';
 import { listAllGamesMatched, deleteGame } from '../util/Proxy';
+import { ILotteryState, ILotteryProps, IGame } from '../interfaces/LotteryState';
+import { IBallState } from '../interfaces/GameStatusState';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -31,41 +33,9 @@ const styles = ((theme: Theme) => (
     }))
 );
 
-interface IProps {
-    history?: Array<String>;
-    classes?: any;
-    gameFinished?: IGame[],
-    gameQueued?: IGame[]
-}
+class Lottery extends Component<ILotteryProps, ILotteryState> {
 
-interface IBallState {
-    checked: boolean,
-    value: string
-}
-
-interface IGame {
-    gameNumber: string,
-    numbersPlayed: string[],
-    numbersDrawn: string[],
-    numbersState: IBallState[],
-    gameId: string,
-    countMatched: number,
-    ballsMatched: string[]
-}
-
-interface IState {
-    email?: String;
-    password?: String;
-    errors?: Error;
-    loading?: boolean;
-    retrievedData?: IGame[],
-    gameFinished?: IGame[],
-    gameQueued?: IGame[]
-}
-
-class Lottery extends Component<IProps, IState> {
-
-    constructor(props: IProps) {
+    constructor(props: ILotteryProps) {
         super(props);
 
         this.state = {};

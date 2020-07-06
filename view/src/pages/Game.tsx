@@ -10,6 +10,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import SaveIcon from '@material-ui/icons/Save';
 import { newGame, listAllGames, deleteGame } from '../util/Proxy';
 import GameStatus from '../elements/GameStatus';
+import { IGameState, IGameProps, IGame } from '../interfaces/GameState';
+import { IBallState } from '../interfaces/GameStatusState';
 
 const styles = ((theme: Theme) => (
     createStyles({
@@ -92,38 +94,8 @@ const styles = ((theme: Theme) => (
     }))
 );
 
-interface IProps {
-    history?: Array<String>;
-    classes?: any;
-}
-
-interface IState {
-    loading?: boolean;
-    ballsNumber?: Array<IBallState>,
-    initialGameNumber?: string,
-    finalGameNumber?: string,
-    errors?: Array<string>,
-    retrievedData?: IGame[],
-    modalOpened?: boolean,
-    gameNumberDuplicate?: string,
-    gameToDuplicate?: IGame,
-    gameDescription?: string
-}
-
-interface IBallState {
-    checked: boolean,
-    value: string
-}
-
-interface IGame {
-    gameNumber?: string,
-    numbersPlayed: string[],
-    gameId?: string,
-    gameDescription?: string
-}
-
-class Game extends Component<IProps, IState> {
-    constructor(props: IProps) {
+class Game extends Component<IGameProps, IGameState> {
+    constructor(props: IGameProps) {
         super(props);
 
         this.state = this.initiateState();

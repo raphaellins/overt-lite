@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { User } from '../interfaces/User';
+import { User } from '../interfaces/UserState';
 
 const urlBase = () => {
     const authToken = localStorage.getItem('AuthToken');
