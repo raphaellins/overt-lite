@@ -8,38 +8,9 @@ import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { loginSystem } from '../util/Proxy';
-import { Theme, createStyles } from '@material-ui/core';
-import { IUserProps, IUserState, User } from '../interfaces/UserState';
-
-const styles = (theme: Theme) => (
-	createStyles({
-		paper: {
-			marginTop: theme.spacing(8),
-			display: 'flex',
-			flexDirection: 'column',
-			alignItems: 'center'
-		},
-		avatar: {
-			margin: theme.spacing(1),
-			backgroundColor: theme.palette.secondary.main
-		},
-		form: {
-			width: '100%',
-			marginTop: theme.spacing(1)
-		},
-		submit: {
-			margin: theme.spacing(3, 0, 2)
-		},
-		customError: {
-			color: 'red',
-			fontSize: '0.8rem',
-			marginTop: 10
-		},
-		progess: {
-			position: 'absolute'
-		}
-	}));
+import { loginSystem } from '../../util/Proxy';
+import { IUserProps, IUserState, User } from '../../interfaces/UserState';
+import styles from './LoginStyle';
 
 class login extends Component<IUserProps, IUserState> {
 	constructor(props: IUserProps) {

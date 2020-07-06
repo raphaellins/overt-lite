@@ -1,37 +1,12 @@
 import React, { Component } from 'react'
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, createStyles, CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@material-ui/core';
 import * as _ from 'lodash';
-import GameStatus from '../elements/GameStatus';
-import { listAllGamesMatched, deleteGame } from '../util/Proxy';
-import { ILotteryState, ILotteryProps, IGame } from '../interfaces/LotteryState';
-import { IBallState } from '../interfaces/GameStatusState';
-
-const styles = ((theme: Theme) => (
-    createStyles({
-        root: {
-            marginTop: 10
-        },
-        matchedTitle: {
-            fontSize: 18,
-            color: 'green'
-        },
-        uiProgess: {
-            position: 'fixed',
-            Index: '1000',
-            height: '31px',
-            width: '31px',
-            left: '50%',
-            top: '35%'
-        },
-        toolbar: theme.mixins.toolbar,
-        line: {
-            marginBottom: 50,
-            marginTop: 50,
-            color: 'gray'
-        },
-    }))
-);
+import GameStatus from '../../elements/GameStatus';
+import { listAllGamesMatched, deleteGame } from '../../util/Proxy';
+import { ILotteryState, ILotteryProps, IGame } from '../../interfaces/LotteryState';
+import { IBallState } from '../../interfaces/GameStatusState';
+import styles from './LotteryStyle';
 
 class Lottery extends Component<ILotteryProps, ILotteryState> {
 

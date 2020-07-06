@@ -1,113 +1,34 @@
 import React, { Component } from 'react'
-import 'date-fns';
-import DateFnsUtils from '@date-io/date-fns';
+
 import withStyles from '@material-ui/core/styles/withStyles';
-import { Theme, createStyles, TextField, Button, CircularProgress } from '@material-ui/core';
+import { TextField, Button, IconButton, CircularProgress, Modal } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import {
-    MuiPickersUtilsProvider,
-    KeyboardDatePicker,
-} from '@material-ui/pickers';
-import GameStatus from '../elements/GameStatus';
 import * as _ from 'lodash';
-import { newDraw, listAllDraws, deleteDraw } from '../util/Proxy';
-import { IDrawState, IDrawProps, IDraw } from '../interfaces/DrawState';
-import { IBallState } from '../interfaces/GameStatusState';
+import CloseIcon from '@material-ui/icons/Close';
+import SaveIcon from '@material-ui/icons/Save';
+import { newGame, listAllGames, deleteGame } from '../../util/Proxy';
+import GameStatus from '../../elements/GameStatus';
+import { IGameState, IGameProps, IGame } from '../../interfaces/GameState';
+import { IBallState } from '../../interfaces/GameStatusState';
+import styles from './GameStyle';
 
-const styles = ((theme: Theme) => (
-    createStyles({
-        content: {
-            flexGrow: 1,
-            padding: theme.spacing(3),
-        },
-        toolbar: theme.mixins.toolbar,
-        root: {
-            marginBottom: 10
-        },
-        bullet: {
-            display: 'inline-block',
-            margin: '0 2px',
-            transform: 'scale(0.8)',
-        },
-        title: {
-            fontSize: 18,
-        },
-        pos: {
-            marginBottom: 12,
-        },
-        ball: {
-            backgroundColor: 'white',
-            border: '1px solid',
-            borderRadius: 50,
-            padding: 2,
-            marginRight: 2,
-            color: 'black',
-            fontWeight: 'bold',
-            cursor: 'pointer'
-        },
-        ballChecked: {
-            backgroundColor: 'green',
-            border: '1px solid',
-            borderRadius: 50,
-            padding: 2,
-            marginRight: 2,
-            color: 'white',
-            fontWeight: 'bold',
-            cursor: 'pointer'
-        },
-        numbers: {
-            marginBottom: 10
-        },
-        formInput: {
-            marginBottom: 10,
-            marginRight: 5
-        },
-        ballsNumbers: {
-            marginTop: 20
-        },
-        inputField: {
-            marginTop: 10
-        },
-        customError: {
-            color: 'red',
-            fontSize: '0.8rem',
-            marginTop: 10
-        },
-        uiProgess: {
-            position: 'fixed',
-            Index: '1000',
-            height: '31px',
-            width: '31px',
-            left: '50%',
-            top: '35%'
-        },
-        inputsGameNumber: {
-            display: 'flex',
-            flexDirection: 'column',
-            marginBottom: 10,
-            maxWidth: 200
-        }
-    }))
-);
-
-class NewDraw extends Component<IDrawProps, IDrawState> {
-    constructor(props: IDrawProps) {
+class Game extends Component<IGameProps, IGameState> {
+    constructor(props: IGameProps) {
         super(props);
 
         this.state = this.initiateState();
     }
 
-    handleDateChange = (date: Date | null) => {
-        this.setState({ drawDate: date });
-    };
-
     initiateState = () => {
         return {
             loading: false,
-            drawNumber: '',
-            drawDate: new Date(),
+            initialGameNumber: '',
+            finalGameNumber: '',
+            gameNumberDuplicate: '',
+            gameDescription: '',
+            gameToDuplicate: undefined,
             ballsNumber: [
                 {
                     value: "01",
@@ -217,26 +138,30 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
     handleSubmit = async (event: any) => {
         event.preventDefault();
 
-        const { drawNumber, drawDate, ballsNumber } = this.state;
-
-        if (drawNumber == null || Number(drawNumber) <= 0 || drawDate == null) {
-            this.setState({ errors: ['Inform the Game Number'] });
-
-            return;
-        }
-
-        this.setState({ loading: true });
+        const { initialGameNumber, finalGameNumber, ballsNumber, gameDescription } = this.state;
 
         const ballsSelected = ballsNumber?.filter((ball: IBallState) => ball.checked);
 
-        var newDrawRequest = {
-            drawNumber,
-            drawDate,
-            numbersDrawn: ballsSelected?.map((ball: IBallState) => ball.value)
+        const initialNumber = Number(initialGameNumber);
+        const finalNumber = Number(finalGameNumber);
+
+        if (isNaN(initialNumber) || initialNumber === 0
+            || isNaN(finalNumber) || finalNumber === 0) {
+            this.setState({ errors: ['Initial and final game number is required'], loading: false })
+            return;
+        }
+
+        var newGameRequest = {
+            initialGameNumber,
+            finalGameNumber,
+            gameDescription,
+            numbersPlayed: ballsSelected?.map((ball: IBallState) => ball.value)
         }
 
         try {
-            await newDraw(newDrawRequest);
+            this.setState({ loading: true });
+
+            await newGame(newGameRequest);
 
             await this.retrieveData();
 
@@ -244,6 +169,7 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
         } catch (error) {
             this.setState({ loading: false });
         }
+
     }
 
     onClickBall = (ballNumber: IBallState) => {
@@ -279,37 +205,60 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
 
     handleChange = (event: any) => {
         this.setState({
-            [event.target.name]: event.target.value
+            [event.target.name]: event.target.value,
+            errors: []
         });
     };
 
     componentWillMount = async () => {
-        this.retrieveData();
+        console.log('Buscando dados');
+        this.setState({ loading: true });
+        await this.retrieveData();
+
+        const { retrievedData } = this.state;
+
+        retrievedData?.forEach((game: IGame, index: number) => {
+            const gameNumber = game.gameNumber ?? 0;
+            if (gameNumber > 1980) {
+                return
+            }
+
+            setTimeout(async () => {
+                console.log('deletando', game.gameId)
+                await deleteGame(game.gameId)
+                console.log('done', game.gameId)
+            }, 10000 * index)
+        })
+
+
+        this.setState({ loading: false });
     }
 
     retrieveData = async () => {
-        let allDraws: Array<IDraw> = [];
+        let allGames: Array<IGame> = [];
 
         try {
-            const { data } = await listAllDraws();
 
-            const drawsQueued: IDraw[] = _.chain(data)
-                .sortBy('drawNumber')
+            const { data } = await listAllGames();
+
+            const gamesQueued: IGame[] = _.chain(data)
+                .sortBy('gameNumber')
                 .value();
 
-            allDraws.push.apply(allDraws, drawsQueued);
+            allGames.push.apply(allGames, gamesQueued);
         } catch (error) {
             console.log(error);
         }
 
-        this.setState({ retrievedData: allDraws });
+        this.setState({ retrievedData: allGames });
     }
 
-    handleDelete = async (draw: IDraw) => {
+    handleDelete = async (game: IGame) => {
         try {
+
             this.setState({ loading: true });
 
-            await deleteDraw(draw.drawId);
+            await deleteGame(game.gameId);
 
             await this.retrieveData();
 
@@ -320,9 +269,49 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
         }
     }
 
+    handleDuplicate = async (game: IGame) => {
+        this.setState({ gameToDuplicate: game });
+
+        this.modalState(true);
+    }
+
+    duplicateGame = async () => {
+        this.setState({ loading: true });
+
+        try {
+            const { gameToDuplicate, gameNumberDuplicate } = this.state;
+
+            if (gameToDuplicate == null) {
+                return;
+            }
+
+            var newGameRequest = {
+                initialGameNumber: gameNumberDuplicate,
+                finalGameNumber: gameNumberDuplicate,
+                gameDescription: gameToDuplicate.gameDescription,
+                numbersPlayed: gameToDuplicate.numbersPlayed
+            }
+
+            await newGame(newGameRequest);
+
+            await this.retrieveData();
+
+            this.modalState(false);
+
+            this.setState(this.initiateState());
+        } catch (error) {
+            this.setState({ loading: false });
+        }
+    }
+
+    modalState = async (state: boolean) => {
+        this.setState({ modalOpened: state, gameNumberDuplicate: '' });
+    }
+
     render() {
         const { classes } = this.props;
-        const { loading, drawNumber, drawDate, ballsNumber, errors, retrievedData } = this.state;
+        const { gameNumberDuplicate, loading, initialGameNumber, finalGameNumber, ballsNumber, errors, retrievedData, modalOpened, gameDescription } = this.state;
+
         if (this.state.loading === true) {
             return (
                 <div className={classes.root}>
@@ -331,7 +320,7 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
             );
         } else {
             return (
-                <main className={classes.content}>
+                <main >
                     <div className={classes.toolbar} />
                     <Card className={classes.root}>
                         <CardContent>
@@ -339,28 +328,25 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
                                 <div className={classes.inputsGameNumber}>
                                     <TextField
                                         type="number"
-                                        name="drawNumber"
-                                        id="drawNumber"
-                                        label="Draw Number"
-                                        value={drawNumber}
+                                        name="initialGameNumber"
+                                        id="initialGameNumber"
+                                        label="Initial Game Number"
+                                        value={initialGameNumber}
                                         onChange={this.handleChange} />
-                                </div>
-                                <div>
-                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                        <KeyboardDatePicker
-                                            disableToolbar
-                                            variant="inline"
-                                            format="dd/MM/yyyy"
-                                            margin="normal"
-                                            id="date-picker-inline"
-                                            label="Date picker inline"
-                                            value={drawDate}
-                                            onChange={(value) => this.handleDateChange(value)}
-                                            KeyboardButtonProps={{
-                                                'aria-label': 'change date',
-                                            }}
-                                        />
-                                    </MuiPickersUtilsProvider>
+                                    <TextField
+                                        type="number"
+                                        name="finalGameNumber"
+                                        id="finalGameNumber"
+                                        label="Final Game Number"
+                                        value={finalGameNumber}
+                                        onChange={this.handleChange} />
+                                        <TextField
+                                        name="gameDescription"
+                                        id="gameDescription"
+                                        label="Game Description"
+                                        inputProps={{maxLength: 12}}
+                                        value={gameDescription}
+                                        onChange={this.handleChange} />
                                 </div>
                                 <div className={classes.inputField}>
                                     <Typography variant="h5" component="h2" className={classes.numbers}>
@@ -412,7 +398,7 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
                                         disabled={loading}
                                         onClick={this.handleSubmit}>
                                         Save
-                            </Button>
+                                </Button>
                                 </div>
                                 <div className={classes.inputField}>
                                     {(
@@ -425,18 +411,47 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
 
                         </CardContent>
                     </Card>
-
                     {
-                        retrievedData?.map((game: IDraw) => {
+                        retrievedData?.map((game: IGame) => {
                             return (
-                                <GameStatus key={game.drawId} game={{ gameId: game.drawId, gameNumber: game.drawNumber, numbersPlayed: game.numbersDrawn }} handleDelete={this.handleDelete}></GameStatus>
+                                <GameStatus key={game.gameId} game={game} handleDelete={this.handleDelete} plusAction={this.handleDuplicate}></GameStatus>
                             )
                         })
                     }
+
+                    <Modal
+                        open={modalOpened ? modalOpened : false}
+                        aria-labelledby="simple-modal-title"
+                        aria-describedby="simple-modal-description"
+                    >
+                        <div className={[classes.paper, classes.modalStyle].join(' ')}>
+
+                            <div>
+                                <TextField
+                                    type="number"
+                                    name="gameNumberDuplicate"
+                                    id="gameNumberDuplicate"
+                                    label="Game Number"
+                                    value={gameNumberDuplicate}
+                                    onChange={this.handleChange} />
+                            </div>
+
+                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.modalState(false)}>
+                                <CloseIcon />
+                            </IconButton>
+                            <IconButton color="primary" aria-label="upload picture" component="span" onClick={() => this.duplicateGame()}>
+                                <SaveIcon />
+                            </IconButton>
+                        </div>
+                    </Modal>
                 </main>
             )
         }
+
+
+
+
     }
 }
 
-export default (withStyles(styles)(NewDraw));
+export default (withStyles(styles)(Game));

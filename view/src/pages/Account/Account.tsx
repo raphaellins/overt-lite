@@ -3,61 +3,13 @@ import React, { Component } from 'react';
 import withStyles from '@material-ui/core/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { Card, CardActions, CardContent, Divider, Grid, TextField, Theme, createStyles } from '@material-ui/core';
+import { Card, CardActions, CardContent, Divider, Grid, TextField } from '@material-ui/core';
 
 import clsx from 'clsx';
-import { authMiddleWare } from '../util/auth';
-import { GetUser } from '../util/Proxy';
-import { IAccountState, IAccountProps } from '../interfaces/AccountState';
-
-const styles = (theme: Theme) => (
-	createStyles({
-		content: {
-			flexGrow: 1,
-			padding: theme.spacing(3)
-		},
-		toolbar: theme.mixins.toolbar,
-		root: {},
-		details: {
-			display: 'flex'
-		},
-		avatar: {
-			height: 110,
-			width: 100,
-			flexShrink: 0,
-			flexGrow: 0
-		},
-		locationText: {
-			paddingLeft: '15px'
-		},
-		buttonProperty: {
-			position: 'absolute',
-			top: '50%'
-		},
-		uiProgess: {
-			position: 'fixed',
-			Index: '1000',
-			height: '31px',
-			width: '31px',
-			left: '50%',
-			top: '35%'
-		},
-		progess: {
-			position: 'absolute'
-		},
-		uploadButton: {
-			marginLeft: '8px',
-			margin: theme.spacing(1)
-		},
-		customError: {
-			color: 'red',
-			fontSize: '0.8rem',
-			marginTop: 10
-		},
-		submitButton: {
-			marginTop: '10px'
-		}
-	}));
+import { authMiddleWare } from '../../util/auth';
+import { GetUser } from '../../util/Proxy';
+import { IAccountState, IAccountProps } from '../../interfaces/AccountState';
+import styles from './AccountStyle';
 
 class account extends Component<IAccountProps, IAccountState> {
 	constructor(props: IAccountProps) {
