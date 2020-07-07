@@ -7,7 +7,10 @@ export interface ILotteryState {
     loading?: boolean;
     retrievedData?: IGame[],
     gameFinished?: IGame[],
-    gameQueued?: IGame[]
+    gameQueued?: IGame[],
+    count?: number,
+    page?:  number,
+    rowsPerPage?: number
 }
 
 export interface ILotteryProps {

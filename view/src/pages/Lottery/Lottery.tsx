@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import withStyles from '@material-ui/core/styles/withStyles';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, TablePagination } from '@material-ui/core';
 import * as _ from 'lodash';
 import GameStatus from '../../elements/GameStatus';
 import { listAllGamesMatched, deleteGame } from '../../util/Proxy';
@@ -8,16 +8,26 @@ import { ILotteryState, ILotteryProps, IGame } from '../../interfaces/LotterySta
 import { IBallState } from '../../interfaces/GameStatusState';
 import styles from './LotteryStyle';
 
+
 class Lottery extends Component<ILotteryProps, ILotteryState> {
 
     constructor(props: ILotteryProps) {
         super(props);
 
-        this.state = {};
+        this.state = {
+            count: 0,
+            page: 0,
+            rowsPerPage: 10
+        };
     }
 
     componentWillMount = async () => {
         this.retrieveData();
+        this.state = {
+            count: 0,
+            page: 0,
+            rowsPerPage: 2
+        };
     }
 
     retrieveData = async () => {
@@ -57,6 +67,9 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
                 .sortBy('gameNumber')
                 .value();
 
+
+            this.setState({count: gamesQueued.length});
+
         } catch (error) {
             console.log(error);
         }
@@ -80,9 +93,17 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
         }
     }
 
+    handleChangePage = (event: any, value: number) => {
+        this.setState({page: value});
+    }
+
+    handleChangeRowsPerPage = (event: any) =>{
+        this.setState({rowsPerPage: event.target.value});
+    }
+
     render() {
         const { classes } = this.props;
-        const { gameFinished, gameQueued } = this.state;
+        const { gameFinished, gameQueued, count, page, rowsPerPage } = this.state;
         if (this.state.loading === true) {
             return (
                 <div className={classes.root}>
@@ -99,6 +120,18 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
                         )
                     })
                 }
+                
+                <TablePagination
+                    component="div"
+                    count={count ?? 0}
+                    page={page ?? 2}
+                    onChangePage={this.handleChangePage}
+                    rowsPerPage={rowsPerPage ?? 10}
+                    onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                    rowsPerPageOptions={[2, 5]}
+                />
+                
+
                 <hr className={classes.line} />
                 {
                     gameFinished?.map((game: IGame) => {
