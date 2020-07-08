@@ -80,32 +80,42 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
         this.setState({ gameFinished: gamesFinished, gameQueued: gamesQueued });
 
         this.loadQueuedGames(0);
+        this.loadFinishedGames(0);
     }
 
     loadQueuedGames = (pageChanged: number) => {
-        let { count, rowsPerPage, gameQueued, gameQueuedScreen } = this.state;
-        
-        gameQueuedScreen = [];
-        // let index = ((page) * rowsPerPage) * -1;
+        let { count, rowsPerPage, gameQueued } = this.state;
 
-        // for (let i = index; i < page * rowsPerPage && i < count; i++) {
-        //     
-        //     console.log(i);
-        // };
+        let gameQueuedScreen = [];
+        let index = pageChanged;
 
-        console.log('page', pageChanged)
-        let index = pageChanged ;
-        if(pageChanged > 0){
-            index =  rowsPerPage * pageChanged;
+        if (pageChanged > 0) {
+            index = rowsPerPage * pageChanged;
         }
-        
-        for(let i = index; i < rowsPerPage * (pageChanged + 1) && i < count ;i++){
+
+        for (let i = index; i < rowsPerPage * (pageChanged + 1) && i < count; i++) {
             gameQueuedScreen.push(gameQueued[i])
         }
 
-        console.log(gameQueuedScreen)
+        this.setState({ gameQueuedScreen })
+    }
 
-        this.setState({ gameQueuedScreen})
+
+    loadFinishedGames = (pageChanged: number) => {
+        let { count, rowsPerPage, gameFinished } = this.state;
+
+        let gameFinishedScreen = [];
+        let index = pageChanged;
+
+        if (pageChanged > 0) {
+            index = rowsPerPage * pageChanged;
+        }
+
+        for (let i = index; i < rowsPerPage * (pageChanged + 1) && i < count; i++) {
+            gameFinishedScreen.push(gameFinished[i])
+        }
+
+        this.setState({ gameFinishedScreen })
     }
 
     handleDelete = async (game: IGame) => {
