@@ -5,12 +5,14 @@ export interface ILotteryState {
     password?: String;
     errors?: Error;
     loading?: boolean;
-    retrievedData?: IGame[],
-    gameFinished?: IGame[],
-    gameQueued?: IGame[],
-    count?: number,
-    page?:  number,
-    rowsPerPage?: number
+    retrievedData: IGame[],
+    gameFinished: IGame[],
+    gameQueued: IGame[],
+    gameQueuedScreen: IGame[],
+    gameFinishedScreen: IGame[],
+    count: number,
+    page:  number,
+    rowsPerPage: number
 }
 
 export interface ILotteryProps {

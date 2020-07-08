@@ -13,21 +13,24 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
 
     constructor(props: ILotteryProps) {
         super(props);
+    }
 
+    initiate = () => {
         this.state = {
             count: 0,
             page: 0,
-            rowsPerPage: 10
+            rowsPerPage: 5,
+            retrievedData: [],
+            gameQueued: [],
+            gameFinished: [],
+            gameFinishedScreen: [],
+            gameQueuedScreen: []
         };
     }
 
     componentWillMount = async () => {
         this.retrieveData();
-        this.state = {
-            count: 0,
-            page: 0,
-            rowsPerPage: 2
-        };
+        this.initiate();
     }
 
     retrieveData = async () => {
@@ -68,13 +71,41 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
                 .value();
 
 
-            this.setState({count: gamesQueued.length});
+            this.setState({ count: gamesQueued.length });
 
         } catch (error) {
             console.log(error);
         }
 
         this.setState({ gameFinished: gamesFinished, gameQueued: gamesQueued });
+
+        this.loadQueuedGames(0);
+    }
+
+    loadQueuedGames = (pageChanged: number) => {
+        let { count, rowsPerPage, gameQueued, gameQueuedScreen } = this.state;
+        
+        gameQueuedScreen = [];
+        // let index = ((page) * rowsPerPage) * -1;
+
+        // for (let i = index; i < page * rowsPerPage && i < count; i++) {
+        //     
+        //     console.log(i);
+        // };
+
+        console.log('page', pageChanged)
+        let index = pageChanged ;
+        if(pageChanged > 0){
+            index =  rowsPerPage * pageChanged;
+        }
+        
+        for(let i = index; i < rowsPerPage * (pageChanged + 1) && i < count ;i++){
+            gameQueuedScreen.push(gameQueued[i])
+        }
+
+        console.log(gameQueuedScreen)
+
+        this.setState({ gameQueuedScreen})
     }
 
     handleDelete = async (game: IGame) => {
@@ -94,16 +125,18 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
     }
 
     handleChangePage = (event: any, value: number) => {
-        this.setState({page: value});
+        this.setState({ page: value });
+
+        this.loadQueuedGames(value);
     }
 
-    handleChangeRowsPerPage = (event: any) =>{
-        this.setState({rowsPerPage: event.target.value});
+    handleChangeRowsPerPage = (event: any) => {
+        this.setState({ rowsPerPage: event.target.value });
     }
 
     render() {
         const { classes } = this.props;
-        const { gameFinished, gameQueued, count, page, rowsPerPage } = this.state;
+        const { gameFinished, gameQueuedScreen, count, page, rowsPerPage } = this.state;
         if (this.state.loading === true) {
             return (
                 <div className={classes.root}>
@@ -114,23 +147,23 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
             return (<main className={classes.root}>
                 <div className={classes.toolbar} />
                 {
-                    gameQueued?.map((game: IGame) => {
+                    gameQueuedScreen.map((game: IGame) => {
                         return (
                             <GameStatus key={game.gameId} game={game} handleDelete={this.handleDelete}></GameStatus>
                         )
                     })
                 }
-                
+
                 <TablePagination
                     component="div"
-                    count={count ?? 0}
-                    page={page ?? 2}
+                    count={count}
+                    page={page}
                     onChangePage={this.handleChangePage}
                     rowsPerPage={rowsPerPage ?? 10}
                     onChangeRowsPerPage={this.handleChangeRowsPerPage}
                     rowsPerPageOptions={[2, 5]}
                 />
-                
+
 
                 <hr className={classes.line} />
                 {
