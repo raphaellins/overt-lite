@@ -7,6 +7,7 @@ import { listAllGamesMatched, deleteGame } from '../../util/Proxy';
 import { ILotteryState, ILotteryProps, IGame } from '../../interfaces/LotteryState';
 import { IBallState } from '../../interfaces/GameStatusState';
 import styles from './LotteryStyle';
+import GameCarrousel from '../../elements/GameCarrousel/GameCarrousel';
 
 
 class Lottery extends Component<ILotteryProps, ILotteryState> {
@@ -78,9 +79,6 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
         }
 
         this.setState({ gameFinished: gamesFinished, gameQueued: gamesQueued });
-
-        this.loadQueuedGames(0);
-        this.loadFinishedGames(0);
     }
 
     loadQueuedGames = (pageChanged: number) => {
@@ -134,19 +132,19 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
         }
     }
 
-    handleChangePage = (event: any, value: number) => {
-        this.setState({ page: value });
+    // handleChangePage = (event: any, value: number) => {
+    //     this.setState({ page: value });
 
-        this.loadQueuedGames(value);
-    }
+    //     // this.loadQueuedGames(value);
+    // }
 
-    handleChangeRowsPerPage = (event: any) => {
-        this.setState({ rowsPerPage: event.target.value });
-    }
+    // handleChangeRowsPerPage = (event: any) => {
+    //     this.setState({ rowsPerPage: event.target.value });
+    // }
 
     render() {
         const { classes } = this.props;
-        const { gameFinished, gameQueuedScreen, count, page, rowsPerPage } = this.state;
+        const { gameFinished, gameQueued, count, page, rowsPerPage } = this.state;
         if (this.state.loading === true) {
             return (
                 <div className={classes.root}>
@@ -155,7 +153,7 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
             );
         } else {
             return (<main className={classes.root}>
-                <div className={classes.toolbar} />
+                {/* <div className={classes.toolbar} />
                 {
                     gameQueuedScreen.map((game: IGame) => {
                         return (
@@ -172,7 +170,10 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
                     rowsPerPage={rowsPerPage ?? 10}
                     onChangeRowsPerPage={this.handleChangeRowsPerPage}
                     rowsPerPageOptions={[2, 5]}
-                />
+                /> */}
+
+
+                <GameCarrousel games={gameQueued} handleDelete={this.handleDelete}></GameCarrousel>
 
 
                 <hr className={classes.line} />
