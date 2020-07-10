@@ -8,16 +8,10 @@ import React from "react";
 
 class GameCarrousel extends Component<IGameCarrouselProps, IGameCarrouselState> {
 
-    constructor(props: IGameCarrouselProps) {
-        super(props);
-
-
-    }
-
     initiateState = () => {
         this.setState({
-            count: 0 ,
-            rowsPerPage: 5,
+            count: 0,
+            rowsPerPage: 2,
             page: 0
         });
     }
@@ -26,54 +20,48 @@ class GameCarrousel extends Component<IGameCarrouselProps, IGameCarrouselState> 
         this.initiateState();
 
         setTimeout(() => {
-            console.log('will prepare data', this.props.games);
-
-            this.setState({count: this.props.games.length})
+            this.setState({ count: this.props.games.length })
             this.prepareDate(0);
         }, 1000);
 
     }
 
     handleChangePage = (event: any, value: number) => {
-        this.setState({ page: value });
-
-
-        this.prepareDate(value);
+        const { rowsPerPage } = this.state;
+        this.prepareDate(value, rowsPerPage);
     }
 
     handleChangeRowsPerPage = (event: any) => {
-        this.setState({ rowsPerPage: event.target.value });
+        const { page } = this.state;
+
+        this.prepareDate(page, event.target.value)
     }
 
-
-    prepareDate = (pageChanged: number) => {
-        let { count, rowsPerPage } = this.state;
+    prepareDate = (pageChanged: number, rowsPerPageChanged: number = 2) => {
+        let { count } = this.state;
         const { games } = this.props;
 
         let gameScreen: IGame[] = [];
         let index = pageChanged;
 
         if (pageChanged > 0) {
-            index = rowsPerPage * pageChanged;
+            index = rowsPerPageChanged * pageChanged;
         }
 
-        for (let i = index; i < rowsPerPage * (pageChanged + 1) && i < count; i++) {
+        for (let i = index; i < rowsPerPageChanged * (pageChanged + 1) && i < count; i++) {
             console.log(i);
             gameScreen.push(games[i])
         }
 
-
-
-        this.setState({ ...this.state, gamesScreen: gameScreen })
+        this.setState({ ...this.state, gamesScreen: gameScreen, page: pageChanged, rowsPerPage: rowsPerPageChanged })
     }
 
     render() {
-        const { games, classes, handleDelete } = this.props;
-        const { count, page, rowsPerPage } = this.state;
+        const { handleDelete } = this.props;
+        const { count, page, rowsPerPage, gamesScreen } = this.state;
         return (<div>
-            <div className={classes.toolbar} />
             {
-                games.map((game: IGame) => {
+                gamesScreen?.map((game: IGame) => {
                     return (
                         <GameStatus key={game.gameId} game={game} handleDelete={handleDelete}></GameStatus>
                     )
@@ -85,7 +73,7 @@ class GameCarrousel extends Component<IGameCarrouselProps, IGameCarrouselState> 
                 count={count}
                 page={page}
                 onChangePage={this.handleChangePage}
-                rowsPerPage={rowsPerPage ?? 10}
+                rowsPerPage={rowsPerPage}
                 onChangeRowsPerPage={this.handleChangeRowsPerPage}
                 rowsPerPageOptions={[2, 5]}
             />
