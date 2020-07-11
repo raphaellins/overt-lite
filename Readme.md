@@ -1,13 +1,8 @@
-<h1>Simple project using Firebase functions (NodeJs) and ReactJs to manager Lottery Game (Lotofacil)<h1>
+# Simple project using Firebase functions (NodeJs) and ReactJs to manager Lottery Game (Lotofacil)
 
+**Functions**
 
-<p>How to run</p>
-
-<h2>Functions</h2>
-
-<ol>
-<li>Create a config.js file on `/util` folder with firebase configurations</li>
-  <p>Example:</p>
+1. Create a config.js file on `util` folder with firebase configurations
   
 ```diff
   module.exports = {
@@ -22,9 +17,22 @@
 }; 
 ```
 
-<li>npm install</li>
-<li>firebase init</li>
-<li>firebase serve</li> 
-<ol>
+2. Install NodeJs dependencies
+  ```sh 
+  $ npm install 
+  ```
+3. Initiate Firebase Functions
+```sh 
+  $ firebase init 
+```
+4. Start api locally
+```sh 
+  $ firebase serve 
+```
   
-<h2>View</h2>
+**View**
+
+1. Install ReactJs dependencies
+```sh 
+  $ npm install
+```
