@@ -5,12 +5,11 @@
 
 <h2>Functions</h2>
 
-
-
 <ol>
-<li>create a config.js file on /util folder with firebase configurations</li>
+<li>Create a config.js file on `/util` folder with firebase configurations</li>
   <p>Example:</p>
-```
+  
+```diff
   module.exports = {
     apiKey: "apiKey",
     authDomain: "project.firebaseapp.com",
@@ -22,7 +21,10 @@
     measurementId: "qadsd1"
 }; 
 ```
+
 <li>npm install</li>
 <li>firebase init</li>
 <li>firebase serve</li> 
 <ol>
+  
+<h2>View</h2>
