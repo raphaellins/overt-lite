@@ -67,8 +67,6 @@ matchDrawAndGame = (newDraw) => {
                     ballsMatched: ballsMatched,
                     countMatched: ballsMatched.length
                 });
-
-                console.log(ballsMatched);
             })
         })
 }

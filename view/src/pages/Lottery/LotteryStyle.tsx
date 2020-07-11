@@ -3,7 +3,10 @@ import { Theme, createStyles } from "@material-ui/core";
 const styles = ((theme: Theme) => (
     createStyles({
         root: {
-            marginTop: 10
+            marginTop: 10,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between'
         },
         matchedTitle: {
             fontSize: 18,

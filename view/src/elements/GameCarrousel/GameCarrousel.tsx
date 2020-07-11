@@ -49,7 +49,6 @@ class GameCarrousel extends Component<IGameCarrouselProps, IGameCarrouselState> 
         }
 
         for (let i = index; i < rowsPerPageChanged * (pageChanged + 1) && i < count; i++) {
-            console.log(i);
             gameScreen.push(games[i])
         }
 
@@ -57,9 +56,10 @@ class GameCarrousel extends Component<IGameCarrouselProps, IGameCarrouselState> 
     }
 
     render() {
-        const { handleDelete } = this.props;
+        const { handleDelete, classes } = this.props;
         const { count, page, rowsPerPage, gamesScreen } = this.state;
         return (<div>
+             <div className={classes.toolbar} />
             {
                 gamesScreen?.map((game: IGame) => {
                     return (

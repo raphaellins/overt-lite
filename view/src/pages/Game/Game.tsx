@@ -211,7 +211,6 @@ class Game extends Component<IGameProps, IGameState> {
     };
 
     componentWillMount = async () => {
-        console.log('Buscando dados');
         this.setState({ loading: true });
         await this.retrieveData();
 
@@ -224,9 +223,7 @@ class Game extends Component<IGameProps, IGameState> {
             }
 
             setTimeout(async () => {
-                console.log('deletando', game.gameId)
                 await deleteGame(game.gameId)
-                console.log('done', game.gameId)
             }, 10000 * index)
         })
 

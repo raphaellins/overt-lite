@@ -32,10 +32,8 @@ const styles = (theme: Theme) => (
       width: '31px',
     },
     container: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'column'
+      paddingRight: 10,
+      paddingLeft:10
     },
     toolbar: theme.mixins.toolbar
   }));
@@ -83,7 +81,6 @@ class App extends Component<PropsType, IState, RouteProps> {
   loadPage = (page: string) => {
     this.props.history?.push(page)
     this.setState({ left: false });
-    console.log(page);
   }
 
   componentWillMount = async () => {
@@ -114,7 +111,6 @@ class App extends Component<PropsType, IState, RouteProps> {
   toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent,
   ) => {
-
     if (
       event.type === 'keydown' &&
       ((event as React.KeyboardEvent).key === 'Tab' ||
@@ -128,7 +124,7 @@ class App extends Component<PropsType, IState, RouteProps> {
 
   render() {
     const { classes } = this.props;
-    const { left } = this.state;
+    const { left, username } = this.state;
     if (this.state.uiLoading === true) {
       return (
         <div className={classes.container}>
@@ -147,11 +143,12 @@ class App extends Component<PropsType, IState, RouteProps> {
 							</Typography>
             </Toolbar>
           </AppBar>
+
           <Drawer
             className={classes.drawer}
             anchor="left"
             open={left}
-            onClose={() => this.toggleDrawer('left', false)}
+            onClose={() =>  this.toggleDrawer('left', false)}
             classes={{
               paper: classes.drawerPaper
             }}

@@ -8,7 +8,6 @@ import { IBallState } from '../../interfaces/GameStatusState';
 import styles from './LotteryStyle';
 import GameCarrousel from '../../elements/GameCarrousel/GameCarrousel';
 
-
 class Lottery extends Component<ILotteryProps, ILotteryState> {
 
     initiate = () => {
@@ -99,10 +98,9 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
         } else {
             return (
                 <main className={classes.root}>
-                    <div className={classes.toolbar} />
-                    <GameCarrousel games={gameQueued} handleDelete={this.handleDelete}></GameCarrousel>
+                   
 
-                    <hr className={classes.line} />
+                    <GameCarrousel games={gameQueued} handleDelete={this.handleDelete}></GameCarrousel>
 
                     <GameCarrousel games={gameFinished} handleDelete={this.handleDelete}></GameCarrousel>
                 </main>)

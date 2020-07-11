@@ -49,7 +49,7 @@ exports.postNewGame = async (request, response) => {
 exports.listGames = async (request, response) => {
     try {
         let games = [];
-        const gamesPlayed = await db.collection('games').orderBy('gameNumber', 'desc').startAfter(20).get();
+        const gamesPlayed = await db.collection('games').orderBy('gameNumber', 'desc').get();
         const drawnFound = await db.collection('draws').get();
 
         for (var gameIndex in gamesPlayed.docs) {
