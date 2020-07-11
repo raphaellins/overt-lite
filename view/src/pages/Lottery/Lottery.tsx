@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import withStyles from '@material-ui/core/styles/withStyles';
 import { CircularProgress } from '@material-ui/core';
 import * as _ from 'lodash';
-import { listAllGamesMatched, deleteGame } from '../../util/Proxy';
+import { listAllGamesMatched, deleteGame, GetUser } from '../../util/Proxy';
 import { ILotteryState, ILotteryProps, IGame } from '../../interfaces/LotteryState';
 import { IBallState } from '../../interfaces/GameStatusState';
 import styles from './LotteryStyle';
@@ -16,8 +16,18 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
             gameQueued: [],
             gameFinished: [],
             gameFinishedScreen: [],
-            gameQueuedScreen: []
+            gameQueuedScreen: [],
+            loading: true
         })
+    }
+
+    componentDidMount = async () => {
+        try {
+            await GetUser();
+        } catch (err) {
+            localStorage.removeItem('AuthToken');
+            this.props.history?.push('/login');
+        }
     }
 
     componentWillMount = async () => {
@@ -66,7 +76,7 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
             console.log(error);
         }
 
-        this.setState({ gameFinished: gamesFinished, gameQueued: gamesQueued });
+        this.setState({ gameFinished: gamesFinished, gameQueued: gamesQueued, loading: false });
     }
 
 
@@ -98,7 +108,7 @@ class Lottery extends Component<ILotteryProps, ILotteryState> {
         } else {
             return (
                 <main className={classes.root}>
-                   
+
 
                     <GameCarrousel games={gameQueued} handleDelete={this.handleDelete}></GameCarrousel>
 

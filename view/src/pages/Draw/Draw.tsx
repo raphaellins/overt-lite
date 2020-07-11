@@ -12,7 +12,7 @@ import {
 } from '@material-ui/pickers';
 import GameStatus from '../../elements/GameStatus';
 import * as _ from 'lodash';
-import { newDraw, listAllDraws, deleteDraw } from '../../util/Proxy';
+import { newDraw, listAllDraws, deleteDraw, GetUser } from '../../util/Proxy';
 import { IDrawState, IDrawProps, IDraw } from '../../interfaces/DrawState';
 import { IBallState } from '../../interfaces/GameStatusState';
 import styles from './DrawStyle';
@@ -28,9 +28,18 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
         this.setState({ drawDate: date });
     };
 
+    componentDidMount = async () => {
+        try {
+            await GetUser();
+        } catch (err) {
+            localStorage.removeItem('AuthToken');
+            this.props.history?.push('/login');
+        }
+    }
+
     initiateState = () => {
         return {
-            loading: false,
+            loading: true,
             drawNumber: '',
             drawDate: new Date(),
             ballsNumber: [
@@ -227,7 +236,7 @@ class NewDraw extends Component<IDrawProps, IDrawState> {
             console.log(error);
         }
 
-        this.setState({ retrievedData: allDraws });
+        this.setState({ retrievedData: allDraws, loading: false });
     }
 
     handleDelete = async (draw: IDraw) => {

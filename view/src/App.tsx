@@ -33,7 +33,7 @@ const styles = (theme: Theme) => (
     },
     container: {
       paddingRight: 10,
-      paddingLeft:10
+      paddingLeft: 10
     },
     toolbar: theme.mixins.toolbar
   }));
@@ -108,7 +108,7 @@ class App extends Component<PropsType, IState, RouteProps> {
     }
   };
 
-  toggleDrawer = (anchor: Anchor, open: boolean) => (
+  toggleDrawer = (anchor: Anchor, open: boolean) => async (
     event: React.KeyboardEvent | React.MouseEvent,
   ) => {
     if (
@@ -119,7 +119,12 @@ class App extends Component<PropsType, IState, RouteProps> {
       return;
     }
 
-    this.setState({ ...this.state, [anchor]: open })
+    try {
+      await GetUser();
+      this.setState({ ...this.state, [anchor]: open })
+    } catch (err) {
+      console.log('Login Invalid');
+    }
   };
 
   render() {
@@ -148,7 +153,7 @@ class App extends Component<PropsType, IState, RouteProps> {
             className={classes.drawer}
             anchor="left"
             open={left}
-            onClose={() =>  this.toggleDrawer('left', false)}
+            onClose={() => this.toggleDrawer('left', false)}
             classes={{
               paper: classes.drawerPaper
             }}

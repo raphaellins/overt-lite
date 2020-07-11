@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import * as _ from 'lodash';
 import CloseIcon from '@material-ui/icons/Close';
 import SaveIcon from '@material-ui/icons/Save';
-import { newGame, listAllGames, deleteGame } from '../../util/Proxy';
+import { newGame, listAllGames, deleteGame, GetUser } from '../../util/Proxy';
 import GameStatus from '../../elements/GameStatus';
 import { IGameState, IGameProps, IGame } from '../../interfaces/GameState';
 import { IBallState } from '../../interfaces/GameStatusState';
@@ -21,9 +21,18 @@ class Game extends Component<IGameProps, IGameState> {
         this.state = this.initiateState();
     }
 
+    componentDidMount = async () => {
+        try {
+            await GetUser();
+        } catch (err) {
+            localStorage.removeItem('AuthToken');
+            this.props.history?.push('/login');
+        }
+    }
+
     initiateState = () => {
         return {
-            loading: false,
+            loading: true,
             initialGameNumber: '',
             finalGameNumber: '',
             gameNumberDuplicate: '',
@@ -211,24 +220,7 @@ class Game extends Component<IGameProps, IGameState> {
     };
 
     componentWillMount = async () => {
-        this.setState({ loading: true });
         await this.retrieveData();
-
-        const { retrievedData } = this.state;
-
-        retrievedData?.forEach((game: IGame, index: number) => {
-            const gameNumber = game.gameNumber ?? 0;
-            if (gameNumber > 1980) {
-                return
-            }
-
-            setTimeout(async () => {
-                await deleteGame(game.gameId)
-            }, 10000 * index)
-        })
-
-
-        this.setState({ loading: false });
     }
 
     retrieveData = async () => {
@@ -247,7 +239,7 @@ class Game extends Component<IGameProps, IGameState> {
             console.log(error);
         }
 
-        this.setState({ retrievedData: allGames });
+        this.setState({ retrievedData: allGames, loading: false });
     }
 
     handleDelete = async (game: IGame) => {
