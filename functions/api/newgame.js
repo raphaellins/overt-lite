@@ -2,6 +2,7 @@ const { db } = require('../util/admin');
 var _ = require('lodash');
 
 exports.postNewGame = async (request, response) => {
+
     if (request.body == null) {
         return response.status(400).json({ body: 'Must not be empty' });
     }
@@ -36,7 +37,9 @@ exports.postNewGame = async (request, response) => {
         const newGame = {
             gameNumber,
             gameDescription,
-            numbersPlayed
+            numbersPlayed,
+            numbersDrawn: [],
+            countMatched: null
         }
 
         await db.collection('games').add(newGame);
@@ -60,7 +63,7 @@ exports.listGames = async (request, response) => {
                 numbersDrawn: []
             };
 
-            if (drawnFound.size > 0) {
+            if (drawnFound.size > 0 && gamePlayed.countMatched) {
                 const drawMatch = _.findLast(drawnFound.docs, (document) => document.data().drawNumber == gamePlayed.gameNumber);
 
                 if (drawMatch != null) {

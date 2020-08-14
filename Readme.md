@@ -36,3 +36,5 @@
 ```sh 
   $ npm install
 ```
+
+export GOOGLE_APPLICATION_CREDENTIALS="/Users/raphaellins/developer/overt-lite/functions/overtlite-credentials.json"
